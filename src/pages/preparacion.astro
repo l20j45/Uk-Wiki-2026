@@ -1,0 +1,25 @@
+---
+// src/pages/preparacion.astro
+import Layout from '../layouts/Layout.astro';
+import TravelChecklist from '../components/TravelChecklist.jsx';
+---
+
+<Layout title="Preparación Final">
+  <main class="max-w-4xl mx-auto p-6 py-12">
+    <header class="text-center mb-12">
+      <span class="text-indigo-600 font-bold tracking-widest uppercase text-xs">Antes de salir</span>
+      <h1 class="text-4xl font-black text-slate-900 mt-2">Checklist de Equipaje</h1>
+      <p class="text-slate-500 mt-4 max-w-md mx-auto">
+        No dejes nada al azar. Revisa que tengas estos elementos esenciales antes de ir al aeropuerto.
+      </p>
+    </header>
+
+    <TravelChecklist client:load />
+
+    <div class="mt-12 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+      <p class="text-amber-800 text-sm">
+        <strong>💡 Tip de Pro:</strong> Toma una foto a tu pasaporte y seguro médico y súbela a la nube (Google Drive/iCloud) por si pierdes los documentos físicos.
+      </p>
+    </div>
+  </main>
+</Layout>

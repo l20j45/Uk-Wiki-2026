@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+// Importamos el layout específico para posts, no el Layout base
+import BlogPostLayout from '../../layouts/BlogPostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id }, 
+    props: { post },
+  }));
+}
+
+type Props = {
+  post: CollectionEntry<'blog'>;
+};
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<!-- 
+  Le pasamos el frontmatter (post.data) al layout.
+  El layout se encarga de todo: título, fecha, estilos y el Layout base.
+-->
+<BlogPostLayout frontmatter={post.data}>
+  <Content />
+</BlogPostLayout>

@@ -1,0 +1,14 @@
+<script>
+  import { registerSW } from 'virtual:pwa-register';
+
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      if (confirm('Hay nueva información del viaje. ¿Actualizar?')) {
+        updateSW();
+      }
+    },
+    onOfflineReady() {
+      console.log('¡El sitio ya funciona sin internet!');
+    },
+  });
+</script>

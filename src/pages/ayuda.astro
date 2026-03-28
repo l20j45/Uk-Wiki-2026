@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FAQAccordion from '../components/FAQAccordion.jsx';
+---
+
+<Layout title="Preguntas Frecuentes - Verano 2026">
+  <main class="max-w-4xl mx-auto p-6 py-12">
+    <section class="text-center mb-12">
+      <h1 class="text-4xl font-black text-slate-900 mb-4">¿Tienes dudas?</h1>
+      <p class="text-slate-500">Aquí respondemos las preguntas más comunes sobre la logística y el programa académico.</p>
+    </section>
+
+    <FAQAccordion client:load />
+
+    <section class="mt-16 p-8 bg-indigo-900 rounded-3xl text-white">
+      <h2 class="text-2xl font-bold mb-4 text-center">Contactos de Emergencia</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-indigo-800 p-4 rounded-xl border border-indigo-700">
+          <p class="font-bold">Dr. Francisco Olivera</p>
+          <p class="text-sm opacity-80">33 12 69 53 64</p>
+          <p class="text-xs italic mt-1">fco_olivera@hotmail.com</p>
+        </div>
+        <div class="bg-indigo-800 p-4 rounded-xl border border-indigo-700">
+          <p class="font-bold">Dr. Leonardo Soto</p>
+          <p class="text-sm opacity-80">33 31 71 62 77</p>
+          <p class="text-xs italic mt-1">leonardo.lsoto@gmail.com</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

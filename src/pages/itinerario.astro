@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LiveItinerary from '../components/LiveItinerary.jsx';
+
+// El link de "Publicar en la web" como CSV
+const GOOGLE_SHEET_CSV = "TU_URL_DE_CSV_AQUÍ";
+---
+
+<Layout title="Itinerario en Tiempo Real">
+  <main class="max-w-2xl mx-auto px-6 py-12">
+    <header class="mb-12">
+      <h1 class="text-4xl font-black text-slate-900">Itinerario Oficial</h1>
+      <p class="text-slate-500 mt-2">Actualizado en tiempo real desde la coordinación.</p>
+    </header>
+
+    <LiveItinerary client:load sheetUrl={GOOGLE_SHEET_CSV} />
+    
+  </main>
+</Layout>
