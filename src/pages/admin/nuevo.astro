@@ -1,0 +1,39 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Solo procesamos si es POST
+if (Astro.request.method === "POST") {
+  try {
+    const data = await Astro.request.formData();
+    const title = data.get("title");
+    const content = data.get("content");
+    const importance = data.get("importance");
+
+    // AQUÍ USARÍAS LA API DE GITHUB PARA CREAR EL ARCHIVO
+    // O guardarías en una base de datos (Astro DB / Supabase)
+    console.log("Guardando...", { title, content, importance });
+  } catch (error) {
+    console.error(error);
+  }
+}
+---
+
+<Layout title="Nuevo Post">
+  <form method="POST" class="max-w-xl mx-auto p-8 bg-white rounded-3xl shadow-xl mt-10">
+    <h2 class="text-2xl font-black mb-6">📝 Nueva Entrada Wiki</h2>
+    
+    <input name="title" placeholder="Título del post" class="w-full p-4 border rounded-xl mb-4" />
+    
+    <select name="importance" class="w-full p-4 border rounded-xl mb-4">
+      <option value="1">Prioridad 1 (Alta)</option>
+      <option value="2">Prioridad 2 (Media)</option>
+      <option value="3">Prioridad 3 (Baja)</option>
+    </select>
+
+    <textarea name="content" rows="10" placeholder="Escribe en Markdown..." class="w-full p-4 border rounded-xl mb-4 font-mono"></textarea>
+    
+    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700">
+      Publicar en la Wiki
+    </button>
+  </form>
+</Layout>

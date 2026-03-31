@@ -4,6 +4,7 @@ description: "Protocolo, vestimenta y objetivos académicos de nuestra visita al
 pubDate: "2026-04-05"
 category: "academico"
 isUrgent: true
+importance: 19
 ---
 
 # 🩺 Inmersión en el NHS Foundation Trust

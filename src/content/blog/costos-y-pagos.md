@@ -4,6 +4,7 @@ description: "Detalles del costo total, qué incluye el programa y fechas límit
 pubDate: "2026-03-27"
 category: "logistica"
 isUrgent: true
+importance: 2
 ---
 
 # 💰 Planifica tu inversión

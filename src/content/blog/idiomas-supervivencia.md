@@ -4,6 +4,7 @@ description: "Todo lo que necesitas saber sobre el curso Applied AI in Project M
 pubDate: "2026-03-26"
 category: "academico"
 isUrgent: true
+importance: 14
 ---
 
 # 🚀 Un paso hacia el futuro: IA en la Gestión de Proyectos

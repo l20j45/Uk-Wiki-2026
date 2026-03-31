@@ -3,6 +3,7 @@ title: "Internet y Telefonía en UK"
 description: "Cómo mantenerte conectado sin pagar roaming excesivo."
 pubDate: "2026-04-01"
 category: "tecnico"
+importance: 15
 ---
 
 # 📱 Datos móviles en el extranjero

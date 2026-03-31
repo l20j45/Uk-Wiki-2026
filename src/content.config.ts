@@ -7,14 +7,12 @@ const blog = defineCollection({
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
-		// Fecha de la excursión a la que pertenece el tema
 		pubDate: z.coerce.date(),
 		updatedDate: z.coerce.date().optional(),
 		heroImage: z.string().optional(),
-		// Categoría: 'historia', 'logistica', 'tecnico', etc.
-		category: z.string().default('general'),
-		// Para marcar temas como "Lectura Obligatoria"
+		category: z.string().default('general'),	
 		isUrgent: z.boolean().default(false),
+		importance: z.number().default(99), // 99 por si olvidas ponerlo
 	}),
 });
 

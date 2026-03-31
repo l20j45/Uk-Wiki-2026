@@ -5,6 +5,10 @@ import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
 import { getCollection } from "astro:content";
 
 const allPosts = await getCollection("blog");
+// 2. Ordenamos por importancia (Ascendente: 1, 2, 3...)
+const sortedPosts = allPosts.sort((a, b) => 
+  a.data.importance - b.data.importance
+);
 ---
 
 <Layout title="Wiki de Aprendizaje | UK 2026">
@@ -25,7 +29,7 @@ const allPosts = await getCollection("blog");
 
     <div class="space-y-8">
       {
-        allPosts.map((post) => (
+        sortedPosts.map((post) => (
           <a href={`/blog/${post.id}`} class="group block">
             <article class="relative p-1">
               {post.data.isUrgent && (

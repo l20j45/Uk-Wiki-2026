@@ -4,6 +4,7 @@ description: "Apps recomendadas y cómo usar la tarjeta Oyster y el Passe Navigo
 pubDate: "2026-03-28"
 category: "logistica"
 isUrgent: false
+importance: 4
 ---
 
 # 🚇 Moviéndote como un local

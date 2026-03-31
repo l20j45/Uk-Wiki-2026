@@ -5,6 +5,7 @@ pubDate: "2026-06-15"
 category: "logistica"
 isUrgent: true
 heroImage: "/images/london-rain.jpg"
+importance: 7
 
 ---
 

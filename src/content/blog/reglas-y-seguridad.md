@@ -4,6 +4,7 @@ description: "Lo que se espera de los alumnos durante la estancia y protocolos d
 pubDate: "2026-03-29"
 category: "logistica"
 isUrgent: true
+importance: 18
 ---
 
 # 🛡️ Seguridad y Convivencia

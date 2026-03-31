@@ -4,6 +4,7 @@ description: "Desde el adaptador de corriente hasta el 'Dress Code' para las vis
 pubDate: "2026-04-04"
 category: "logistica"
 isUrgent: false
+importance: 17
 ---
 
 # 📦 Preparando la Maleta

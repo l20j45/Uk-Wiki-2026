@@ -4,6 +4,7 @@ description: "Documentos legales y de salud que debes tener listos antes de vola
 pubDate: "2026-03-30"
 category: "logistica"
 isUrgent: true
+importance: 2
 ---
 
 # 📑 Documentos Indispensables

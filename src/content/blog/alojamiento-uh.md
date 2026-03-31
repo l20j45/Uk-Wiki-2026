@@ -3,6 +3,7 @@ title: "Tu hogar en Inglaterra: University of Hertfordshire"
 description: "Detalles sobre las habitaciones, servicios y ubicación del campus."
 pubDate: "2026-03-29"
 category: "logistica"
+importance: 5
 ---
 
 # 🏠 Alojamiento en el Campus

@@ -4,6 +4,7 @@ description: "Las aplicaciones que debes tener instaladas antes de subir al aviÃ
 pubDate: "2026-04-02"
 category: "tecnico"
 isUrgent: true
+importance: 10
 ---
 
 # ğŸ“² Tu celular es tu mejor herramienta

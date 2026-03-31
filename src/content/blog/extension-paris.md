@@ -3,6 +3,7 @@ title: "Extensión Académica: Londres a París"
 description: "Detalles del viaje en el Eurostar y actividades en la Ciudad Luz."
 pubDate: "2026-03-31"
 category: "academico"
+importance: 13
 ---
 
 # 🗼 Rumbo a París

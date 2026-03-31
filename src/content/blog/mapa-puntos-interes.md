@@ -4,6 +4,7 @@ description: "Ubicaciones clave, desde el campus de UH hasta los puntos de reuni
 pubDate: "2026-04-03"
 category: "logistica"
 isUrgent: TRUE
+importance: 16
 ---
 
 # 🗺️ Lugares que debes conocer

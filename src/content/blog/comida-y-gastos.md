@@ -3,6 +3,7 @@ title: "Guía de Supervivencia: Comida y Despensa"
 description: "Presupuesto diario para alimentos y dónde comprar cerca del campus."
 pubDate: "2026-03-31"
 category: "logistica"
+importance: 12
 ---
 
 # 🍎 Alimentación en Hatfield
