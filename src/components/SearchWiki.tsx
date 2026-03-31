@@ -10,8 +10,8 @@ export default function SearchWiki({ posts }: SearchWikiProps) {
 
   // Filtramos los posts en base a lo que el usuario escribe
   const filteredPosts = posts.filter(post => 
-    post.data.title.toLowerCase().includes(query.toLowerCase()) ||
-    post.data.description.toLowerCase().includes(query.toLowerCase())
+    post.title.toLowerCase().includes(query.toLowerCase()) ||
+    post.description.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -45,8 +45,8 @@ export default function SearchWiki({ posts }: SearchWikiProps) {
               className="p-4 bg-white border border-slate-100 rounded-xl hover:bg-indigo-50 transition-colors flex justify-between items-center"
             >
               <div>
-                <h4 className="font-bold text-slate-800">{post.data.title}</h4>
-                <p className="text-xs text-slate-500">{post.data.description}</p>
+                <h4 className="font-bold text-slate-800">{post.title}</h4>
+                <p className="text-xs text-slate-500">{post.description}</p>
               </div>
               <span className="text-indigo-400">→</span>
             </a>

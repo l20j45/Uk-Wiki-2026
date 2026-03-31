@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 | ¿Te has perdido en el Tube?">
+  <div class=" test min-h-[80vh] bg-slate-100 items-center justify-center px-6 text-center">
+    <div class="relative mb-8">
+      <div class="text-9xl font-black text-slate-100 absolute -top-12 left-1/2 -translate-x-1/2 -z-10 select-none">
+        404
+      </div>
+      <div class="text-7xl">🚇</div>
+    </div>
+
+    <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-4">
+      ¡Cuidado con el hueco! <br/>
+      <span class="text-indigo-600">(Mind the gap)</span>
+    </h1>
+
+    <p class="text-slate-500 text-lg max-w-md mx-auto mb-10 leading-relaxed">
+      Parece que has tomado la línea equivocada. La página que buscas no se encuentra en esta estación.
+    </p>
+
+    <div class=" sm:flex-row gap-4">
+      <a href="/" class="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-100">
+        Volver al Dashboard
+      </a>
+      <a href="/sos" class="px-8 py-4 bg-white text-slate-600 font-bold rounded-2xl border border-slate-200 hover:border-indigo-200 transition-all">
+        Reportar Problema
+      </a>
+    </div>
+
+    <div class="flex mt-20 opacity-20 pointer-events-none">
+       <svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+         <path d="M0 50 H200" stroke="#4f46e5" stroke-width="4"/>
+         <path d="M50 0 V100" stroke="#ef4444" stroke-width="4"/>
+         <path d="M150 0 V100" stroke="#eab308" stroke-width="4"/>
+         <circle cx="50" cy="50" r="8" fill="white" stroke="#1e293b" stroke-width="3"/>
+         <circle cx="150" cy="50" r="8" fill="white" stroke="#1e293b" stroke-width="3"/>
+       </svg>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .test {
+    display: flex;
+    flex-direction: column;
+  }
+  </style>

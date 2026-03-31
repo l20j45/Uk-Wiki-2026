@@ -1,0 +1,83 @@
+---
+import { localDate } from 'drizzle-orm/gel-core/columns/localdate';
+
+// DailySchedule.astro
+interface scheduleArray {
+  id: number;
+  eventDate: string;
+  eventTime: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+const { scheduleArray = [] } = Astro.props;
+
+
+
+---
+
+<div class="bg-white border-2 border-indigo-100 rounded-3xl p-6 shadow-sm mb-8">
+  <a id="schedule-link" href={`/itinerario?date=${new Date().toISOString().split('T')[0]}`} class="block group">
+    <div class="flex items-center justify-between mb-4">
+      <span id="today-badge" class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+        Hoy: {new Date().toISOString().split('T')[0]}
+      </span>
+      <div class="flex space-x-1 items-center">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-[10px] text-slate-400 font-bold uppercase">En vivo</span>
+      </div>
+    </div>
+
+    <h2 id="activity-title" class="text-2xl font-black text-slate-800 mb-1 leading-tight group-hover:text-indigo-600 transition-colors">
+      Día Libre / Traslado
+      {date}
+    </h2>
+    
+    <p class="text-indigo-600 font-medium flex items-center mb-4">
+      <span id="activity-icon" class="mr-2">🗺️</span> 
+      <span id="activity-desc">Consultar itinerario detallado</span>
+    </p>
+
+    <div class="flex items-center text-slate-500 text-sm bg-slate-50 p-3 rounded-xl border border-dashed border-slate-200">
+      <span class="mr-2">⏰</span>
+      <strong>Horario:</strong> 
+      <span id="activity-time" class="ml-2">N/A</span>
+    </div>
+  </a>
+
+  <a href="/itinerario" class="block text-center mt-6 text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-widest">
+    Ver calendario completo →
+  </a>
+</div>
+
+<script define:vars={{ scheduleArray }}>
+  // 1. Calcular fecha local hoy
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  const localDate = new Date(now.getTime() - (offset * 60 * 1000))
+    .toISOString()
+    .split('T')[0];
+
+  // 2. Buscar actividad
+  const activity = scheduleArray.find(item => item.eventDate === localDate);
+
+  // 3. Referencias al DOM
+  const badge = document.getElementById('today-badge');
+  const link = document.getElementById('schedule-link');
+  const title = document.getElementById('activity-title');
+  const icon = document.getElementById('activity-icon');
+  const desc = document.getElementById('activity-desc');
+  const time = document.getElementById('activity-time');
+
+  // 4. Actualizar UI
+  if (badge) badge.innerText = `Hoy: ${localDate}`;
+  if (link) link.href = `/itinerario?date=${localDate}`;
+
+  if (activity) {
+    if (title) title.innerText = activity.title;
+    if (icon) icon.innerText = activity.icon;
+    if (desc) desc.innerText = activity.description;
+    if (time) time.innerText = activity.eventTime;
+  }
+</script>

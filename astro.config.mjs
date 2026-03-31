@@ -6,8 +6,13 @@ import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 
 
+import netlify from "@astrojs/netlify";
+
+
 // https://astro.build/config
 export default defineConfig({
+  output: 'server',
+
   integrations: [
     react(),
     sitemap(),
@@ -29,4 +34,8 @@ export default defineConfig({
     },
     plugins: [tailwindcss()],
   },
+
+  adapter: netlify({
+    edgeMiddleware: true 
+  }),
 });

@@ -1,68 +1,221 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import DailySchedule from '../components/DailySchedule.jsx';
+import Layout from "../layouts/Layout.astro";
+import DailySchedule from "../components/DailySchedule.astro";
+import { GET } from "./api/infoUsuario";
+import LiveClock from "../components/LiveClock";
+let response = await GET(Astro);
+let data: { username: string | null } = { username: null };
+if (response.ok) {
+  data = await response.json();
+}
+const now = new Date();
+
+import { db } from '../db/db';
+import { itinerary } from '../db/schema';
+
+// En lugar de llamar a la API, consulta la DB directamente
+const itineraryData = await db.select().from(itinerary).orderBy(itinerary.eventDate);
+
+
+const timeOptions = (tz: any): Intl.DateTimeFormatOptions => ({
+  timeZone: tz,
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+const londonTime = now.toLocaleTimeString(
+  "es-MX",
+  timeOptions("Europe/London"),
+);
+
+
+const hourLondon = parseInt(londonTime.split(":")[0]);
+const greeting =
+  hourLondon < 12
+    ? "Good morning"
+    : hourLondon < 18
+      ? "Good afternoon"
+      : "Good evening";
+
+const londonHour = new Date(
+  now.toLocaleString("en-US", { timeZone: "Europe/London" }),
+).getHours();
+
+// Definimos los estados visuales del Header
+let headerClass =
+  "from-white to-slate-50 dark:from-slate-900 dark:to-slate-950"; // Default
+let accentColor = "text-indigo-600";
+let clockGradient = "from-indigo-600 to-blue-700";
+
+if (londonHour >= 20 || londonHour < 6) {
+
+  headerClass = "from-slate-900 via-indigo-950 to-slate-950 text-white";
+  accentColor = "text-indigo-400";
+  clockGradient = "from-rose-500 to-indigo-700"; 
+} else if (londonHour >= 18) {
+
+  headerClass =
+    "from-orange-50 via-rose-50 to-slate-50 dark:from-slate-900 dark:via-orange-950/20";
+  accentColor = "text-orange-600";
+  clockGradient = "from-orange-500 to-rose-600";
+}
 ---
 
 <Layout title="Dashboard | UK 2026">
-  <main class="max-w-2xl mx-auto px-6 pt-12 pb-24">
-    
-    <header class="mb-10">
-      <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">
-        ¡Bienvenido, <span class="text-indigo-600">Daniel</span>!
-      </h1>
-      <p class="text-lg text-slate-500 mt-2 font-medium">Todo listo para tu estancia en Hatfield.</p>
+  <main class="max-w-2xl mx-auto px-6 pb-24">
+    <header
+      class={`relative overflow-hidden pt-8 pb-10 px-4 rounded-b-[3.5rem] shadow-2xl transition-all duration-1000 bg-gradient-to-b ${headerClass}`}
+    >
+
+      <div
+        class="max-w-4xl mx-auto flex justify-between items-start relative z-10"
+      >
+        <div class="space-y-5">
+          <div>
+            <h1
+              class={`text-3xl font-black tracking-tight leading-none ${londonHour >= 20 || londonHour < 6 ? "text-white" : "text-slate-900 dark:text-white"}`}
+            >
+              {greeting}, <span class={accentColor}
+                >{data?.username || "Explorer"} </span
+              >! 👋
+            </h1>
+            <div class="flex items-center gap-2 mt-2 ml-1">
+              <span class="relative flex h-2 w-2">
+                <span
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+                ></span>
+                <span
+                  class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"
+                ></span>
+              </span>
+              <p
+                class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+              >
+                Live UK Update
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div
+              class={`flex items-center gap-3 bg-gradient-to-br ${clockGradient} px-5 py-2.5 rounded-2xl shadow-xl shadow-indigo-500/20 border border-white/10`}
+            >
+              <span class="text-xl">🇬🇧</span>
+              <div class="border-l border-white/20 pl-3">
+                <p
+                  class="text-[9px] font-black uppercase text-white/70 leading-none mb-1"
+                >
+                  London
+                </p>
+                <p
+                  class="text-xl font-black text-white leading-none tabular-nums tracking-tighter"
+                >
+                 <LiveClock client:load timeZone="Europe/London" />
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center gap-3 bg-white/5 dark:bg-slate-800/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-white/5"
+            >
+              <span class="text-xl opacity-80">🇲🇽</span>
+              <div class="border-l border-slate-300 dark:border-white/10 pl-3">
+                <p
+                  class="text-[9px] font-black uppercase text-slate-400 leading-none mb-1"
+                >
+                  GDL
+                </p>
+                <p
+                  class="text-lg font-black text-slate-600 dark:text-slate-300 leading-none tabular-nums tracking-tighter"
+                >
+                  <LiveClock client:load timeZone="America/Mexico_City" />
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div
+            class={`w-16 h-16 rounded-full p-1 shadow-2xl ${londonHour >= 20 || londonHour < 6 ? "bg-indigo-500/20" : "bg-slate-100 dark:bg-slate-800"}`}
+          >
+            <div
+              class={`w-full h-full rounded-full flex items-center justify-center text-white font-black text-2xl border-2 ${londonHour >= 20 || londonHour < 6 ? "bg-indigo-500 border-indigo-400" : "bg-indigo-600 border-indigo-500"}`}
+            >
+              {data?.username?.charAt(0).toUpperCase() || "U"}
+            </div>
+          </div>
+        </div>
+      </div>
     </header>
 
-    <div class="mb-12 transform hover:scale-[1.02] transition-transform duration-300">
-      <DailySchedule client:load />
-    </div>
 
-    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Recursos Principales</h2>
-    
-    <div class="grid grid-cols-2 gap-4">
-      <a href="/blog" class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all">
-        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+    {data?.username && (
+      <>
+      <div
+        class="mt-12 mb-12 transform hover:scale-[1.02] transition-transform duration-300"
+      >
+        <DailySchedule scheduleArray={itineraryData} />
+      </div>
+
+      <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+        Recursos Principales
+      </h2>
+
+      <div class="grid grid-cols-2 gap-4">
+        <a
+        href="/blog"
+        class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
+        >
+        <div
+          class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform"
+        >
           📚
         </div>
         <h3 class="font-bold text-slate-800">Wiki de IA</h3>
         <p class="text-xs text-slate-500 mt-1">Módulos y lecturas del curso.</p>
-      </a>
+        </a>
 
-      <!-- <a href="/itinerario" class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all">
-        <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-          📅
-        </div>
-        <h3 class="font-bold text-slate-800">Itinerario</h3>
-        <p class="text-xs text-slate-500 mt-1">Calendario completo de actividades.</p>
-      </a> -->
 
-      <!-- <a href="/transporte" class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all">
-        <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-          🚇
-        </div>
-        <h3 class="font-bold text-slate-800">Transporte</h3>
-        <p class="text-xs text-slate-500 mt-1">Cómo moverte en Londres y París.</p>
-      </a> -->
-
-      <a href="/preparacion" class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all">
-        <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+        <a
+        href="/preparacion"
+        class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
+        >
+        <div
+          class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform"
+        >
           🧳
         </div>
         <h3 class="font-bold text-slate-800">Checklist</h3>
         <p class="text-xs text-slate-500 mt-1">Maleta y documentos listos.</p>
-      </a>
-    </div>
+        </a>
+        
 
-    <div class="mt-12 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative">
-      <div class="relative z-10">
+
+      </div>
+
+      <div
+        class="mt-12 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative"
+      >
+        <div class="relative z-10">
         <h3 class="text-xl font-bold mb-2">¿Necesitas ayuda?</h3>
-        <p class="text-slate-400 text-sm mb-4">Accede a los números de emergencia y soporte de la UdeG.</p>
-        <a href="/sos" class="inline-block bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors">
+        <p class="text-slate-400 text-sm mb-4">
+          Accede a los números de emergencia y soporte de la UdeG.
+        </p>
+        <a
+          href="/sos"
+          class="inline-block bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors"
+        >
           Contactar Soporte
         </a>
+        </div>
+        <div
+        class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl opacity-50"
+        >
+        </div>
       </div>
-      <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl opacity-50"></div>
-    </div>
-
+      </>
+    )}
   </main>
 </Layout>

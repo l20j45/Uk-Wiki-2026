@@ -1,19 +1,91 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import LiveItinerary from '../components/LiveItinerary.jsx';
+import { db } from '../db/db';
+import { itinerary } from '../db/schema';
+import Layout from "../layouts/Layout.astro";
+import { eq } from 'drizzle-orm'; // Importante para filtrar en la query
 
-// El link de "Publicar en la web" como CSV
-const GOOGLE_SHEET_CSV = "TU_URL_DE_CSV_AQUÍ";
+// 1. Obtener el parámetro de la URL
+const dateParam = Astro.url.searchParams.get('date') || '';
+
+// 2. Consultar la DB
+// Si hay fecha, filtramos por ella. Si no, traemos todos.
+let itineraryData;
+
+if (dateParam) {
+  itineraryData = await db.select()
+    .from(itinerary)
+    .where(eq(itinerary.eventDate, dateParam))
+    .orderBy(itinerary.eventTime);
+} else {
+  itineraryData = await db.select()
+    .from(itinerary)
+    .orderBy(itinerary.eventDate, itinerary.eventTime);
+}
+
+// Para efectos visuales: ¿Estamos viendo un día específico o todo?
+const isFiltered = dateParam !== '';
 ---
 
-<Layout title="Itinerario en Tiempo Real">
+<Layout title="Itinerario Completo | UK 2026">
   <main class="max-w-2xl mx-auto px-6 py-12">
-    <header class="mb-12">
-      <h1 class="text-4xl font-black text-slate-900">Itinerario Oficial</h1>
-      <p class="text-slate-500 mt-2">Actualizado en tiempo real desde la coordinación.</p>
+    <header class="mb-16">
+      <h1 class="text-4xl font-black text-slate-900 tracking-tight">
+        {isFiltered ? `Actividades para el ${dateParam}` : 'Cronograma de Actividades'}
+      </h1>
+      <p class="text-slate-500 mt-2 italic text-lg">
+        "Un viaje de mil millas comienza con un solo paso... y un buen calendario."
+      </p>
+      
+      {isFiltered && (
+        <a href="/" class="inline-block mt-4 text-sm font-bold text-indigo-600 hover:underline">
+          Regresar al inicio
+        </a>
+      )}
     </header>
 
-    <LiveItinerary client:load sheetUrl={GOOGLE_SHEET_CSV} />
-    
+    <div class="relative">
+      <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-200"></div>
+
+      <div class="space-y-12">
+        {itineraryData.length > 0 ? (
+          itineraryData.map((item) => (
+            <div class="relative pl-20 group">
+              {isFiltered && (
+                <span class="absolute left-7 top-7 w-2.5 h-2.5 bg-green-500 rounded-full animate-ping z-20"></span>
+              )}
+              
+              <div class="absolute left-0 top-0 w-16 h-16 bg-white border-4 border-indigo-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm group-hover:border-indigo-600 group-hover:shadow-md transition-all z-10">
+                {item.icon}
+              </div>
+
+              <div>
+                <span class="text-xs font-black uppercase tracking-widest text-indigo-600">
+                  {item.eventDate} — {item.eventTime}
+                </span>
+                <h3 class="text-xl font-bold text-slate-800 mt-1">{item.title}</h3>
+                <p class="text-slate-500 mt-2 leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+              
+              <div class="absolute left-16 top-8 w-4 h-0.5 bg-slate-200"></div>
+            </div>
+          ))
+        ) : (
+          <div class="pl-20 text-slate-400 italic">
+            No hay actividades programadas para esta fecha.
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div class="mt-20 p-8 bg-indigo-900 rounded-[2.5rem] text-white">
+      <h4 class="font-bold mb-2 flex items-center">
+        <span class="mr-2">💡</span> Recordatorio Importante
+      </h4>
+      <p class="text-indigo-200 text-sm leading-relaxed">
+        Los horarios específicos de cada visita empresarial se confirmarán vía WhatsApp y en el Dashboard de esta Wiki 24 horas antes de cada evento.
+      </p>
+    </div>
   </main>
 </Layout>

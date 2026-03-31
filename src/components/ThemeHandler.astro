@@ -1,0 +1,22 @@
+<script>
+  function updateTheme() {
+    const now = new Date();
+    // Convertimos la hora actual a la de Londres
+    const londonTime = new Error().stack?.includes('server') 
+      ? now 
+      : new Date(now.toLocaleString("en-US", {timeZone: "Europe/London"}));
+    
+    const hours = londonTime.getHours();
+    const isNight = hours >= 20 || hours < 6; // De 8 PM a 6 AM
+
+    if (isNight) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+
+  // Ejecutar al cargar y cada minuto por si cambian de hora mientras navegan
+  updateTheme();
+  setInterval(updateTheme, 60000);
+</script>

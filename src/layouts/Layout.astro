@@ -1,35 +1,111 @@
 ---
-interface Props { title: string; }
+interface Props {
+  title: string;
+}
 const { title } = Astro.props;
-import PanicButton from '../components/PanicButton.jsx';
+import PanicButton from "../components/PanicButton.jsx";
 import "../styles/global.css";
+
+const hasSession = Astro.cookies.has("user_session");
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="es" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="global.css">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="global.css" />
     <title>{title}</title>
   </head>
-  <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased">
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <img src="/icon.svg" class="w-8 h-8" alt="Logo" />
-        <span class="font-extrabold tracking-tight text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
-          UK 2026
-        </span>
+  <body
+    class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased"
+  >
+    <nav
+      class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 flex justify-between items-center"
+    >
+      <a href="/">
+        <div class="flex items-center gap-2">
+          <img src="/icon.svg" class="w-8 h-8" alt="Logo" />
+          <span
+            class="font-extrabold tracking-tight text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600"
+          >
+            UK 2026
+          </span>
+        </div>
+      </a>
+      <div class="flex auto gap-4 items-center">
+        {
+          hasSession ? (
+            <div>
+              <a
+                href="/admin/"
+                class="text-sm font-bold text-slate-600 hover:text-indigo-600"
+              >
+                Dashboard
+              </a>
+              <a
+                href="/api/logout"
+                class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors"
+              >
+                Cerrar Sesión
+              </a>
+            </div>
+          ) : (
+            <div>
+              <a
+                href="/login"
+                class="text-sm font-bold text-slate-400  items-center px-4 py-2 font-bold text-white bg-green-600 rounded-full   "
+              >
+                Inicia Sesion
+              </a>
+            </div>
+          )
+        }
+
+        <PanicButton client:load />
       </div>
-      <PanicButton client:load />
     </nav>
 
     <slot />
+<a 
+  href="/sos" 
+  class="fixed bottom-6 right-6 w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center text-2xl 
+         shadow-[0_0_20px_rgba(225,29,72,0.5)] 
+         dark:bg-rose-500 dark:shadow-[0_0_40px_rgba(225,29,72,0.8)] 
+         animate-pulse z-50"
+>
+  🚨
+</a>
 
-    <footer class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200">
+    <footer
+      class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200"
+    >
       <p>Curso de Verano Aplicado a IA • University of Hertfordshire</p>
       <p class="mt-1">© 2026 - Daniel Rojas</p>
     </footer>
   </body>
 </html>
+
+<!-- <style is:global>
+  :root {
+    --accent: 79, 70, 229;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+    .bg-white {
+      background-color: #1e293b !important;
+      color: white;
+    }
+    .text-slate-600 {
+      color: #94a3b8;
+    }
+  }
+</style> -->
