@@ -1,0 +1,121 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { db } from "../../db/db";
+import { users } from "../../db/schema";
+import { eq } from "drizzle-orm";
+
+const { username } = Astro.params;
+
+// Buscamos al usuario por su username
+const person = await db.query.users.findFirst({
+  where: eq(users.username, username || ""),
+  with: { socials: true },
+});
+
+if (!person) return Astro.redirect("/404");
+
+const initials = person.fullName
+  .split(" ")
+  .map((n) => n[0])
+  .join("")
+  .toUpperCase();
+---
+
+<Layout title={`Emergencia: ${person.fullName}`}>
+  <main class="max-w-md mx-auto px-6 py-10">
+    <div
+      class="bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border-4 border-rose-500 overflow-hidden"
+    >
+      <div class="bg-rose-500 p-6 text-center text-white">
+        <p class="text-[10px] font-black uppercase tracking-[0.3em] mb-2">
+          Emergency ID Card
+        </p>
+        <div
+          class="w-20 h-20 bg-white/20 rounded-2xl mx-auto flex items-center justify-center text-2xl font-black backdrop-blur-md"
+        >
+          <img
+            src={person.avatarUrl?.replace(
+              "/upload/",
+              "/upload/w_200,h_200,c_thumb,g_face/",
+            )}
+            alt="Foto ID"
+            class="rounded-xl"
+          />
+        </div>
+        <h1 class="text-xl font-black mt-4 leading-tight">{person.fullName}</h1>
+        <p class="text-rose-100 text-sm italic">UK Summer Program 2026</p>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700"
+          >
+            <p class="text-[9px] font-black uppercase text-slate-400">
+              Tipo de Sangre
+            </p>
+            <p class="text-lg font-black text-rose-600">
+              {person.bloodType || "N/A"}
+            </p>
+          </div>
+          <div
+            class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700"
+          >
+            <p class="text-[9px] font-black uppercase text-slate-400">
+              Alergias
+            </p>
+            <p
+              class="text-sm font-bold text-slate-700 dark:text-slate-200 truncate"
+            >
+              {person.allergies || "Ninguna"}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="bg-amber-50 dark:bg-amber-950/30 p-5 rounded-2xl border border-amber-100 dark:border-amber-900/30"
+        >
+          <p class="text-[9px] font-black uppercase text-amber-600 mb-1">
+            Contacto de Emergencia
+          </p>
+          <p class="font-black text-slate-800 dark:text-amber-200">
+            {person.emergencyContact || "No registrado"}
+          </p>
+        </div>
+
+        <div>
+          <p
+            class="text-[9px] font-black uppercase text-slate-400 ml-1 mb-3 text-center"
+          >
+            Social Profiles
+          </p>
+          <div class="flex flex-wrap justify-center gap-2">
+            {
+              person.socials.map((s) => (
+                <a
+                  href={s.url}
+                  class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold hover:bg-indigo-500 hover:text-white transition-all"
+                >
+                  {s.platform}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 space-y-3">
+      <a
+        href="tel:999"
+        class="block w-full bg-slate-900 text-white text-center py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl"
+      >
+        📞 Llamar a Emergencias (UK)
+      </a>
+      <p class="text-[10px] text-center text-slate-400 px-10">
+        Esta es una tarjeta de identificación digital para el programa de
+        estudios 2026. En caso de extravío, contacte al Staff.
+      </p>
+    </div>
+  </main>
+</Layout>

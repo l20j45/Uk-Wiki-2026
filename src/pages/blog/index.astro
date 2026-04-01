@@ -31,15 +31,19 @@ const allPosts = sortedPosts;
         sortedPosts.map((post) => (
           <a href={`/blog/${post.slug}`} class="group block">
             <article class="relative p-1">
-              {post.isUrgent && (
+
+              
+              {!!post.isUrgent && (
                 <span
                   class={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3 
                   bg-rose-100 text-rose-600
                 }`}
                 >
-                  URGENTE
+                  {post.isUrgent ? "¡Urgente!" : post.category}
                 </span>
               )}
+
+
               <span
                 class={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-3 bg-indigo-100 text-indigo-600
             }`}

@@ -7,7 +7,6 @@ export const GET: APIRoute = async () => {
 
 
   const today = new Date().toISOString().split('T')[0];
-  console.log("🚀 ~ GET ~ today:", today)
 
   const result = await db.$client.execute({
     sql: "SELECT * FROM itinerary WHERE event_date = ? ORDER BY event_time ASC",

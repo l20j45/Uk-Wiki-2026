@@ -46,7 +46,6 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
       eventTime, // Asegúrate de tener este campo en tu schema.ts
       icon,
     });
-    console.log("Nuevo evento agregado al itinerario:", { title, eventDate, eventTime });
     // Redirigir de vuelta al dashboard o al itinerario
     return redirect("/admin");
 

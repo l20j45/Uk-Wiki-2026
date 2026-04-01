@@ -10,12 +10,14 @@ if (response.ok) {
 }
 const now = new Date();
 
-import { db } from '../db/db';
-import { itinerary } from '../db/schema';
+import { db } from "../db/db";
+import { itinerary } from "../db/schema";
 
 // En lugar de llamar a la API, consulta la DB directamente
-const itineraryData = await db.select().from(itinerary).orderBy(itinerary.eventDate);
-
+const itineraryData = await db
+  .select()
+  .from(itinerary)
+  .orderBy(itinerary.eventDate);
 
 const timeOptions = (tz: any): Intl.DateTimeFormatOptions => ({
   timeZone: tz,
@@ -28,7 +30,6 @@ const londonTime = now.toLocaleTimeString(
   "es-MX",
   timeOptions("Europe/London"),
 );
-
 
 const hourLondon = parseInt(londonTime.split(":")[0]);
 const greeting =
@@ -49,12 +50,10 @@ let accentColor = "text-indigo-600";
 let clockGradient = "from-indigo-600 to-blue-700";
 
 if (londonHour >= 20 || londonHour < 6) {
-
   headerClass = "from-slate-900 via-indigo-950 to-slate-950 text-white";
   accentColor = "text-indigo-400";
-  clockGradient = "from-rose-500 to-indigo-700"; 
+  clockGradient = "from-rose-500 to-indigo-700";
 } else if (londonHour >= 18) {
-
   headerClass =
     "from-orange-50 via-rose-50 to-slate-50 dark:from-slate-900 dark:via-orange-950/20";
   accentColor = "text-orange-600";
@@ -67,7 +66,6 @@ if (londonHour >= 20 || londonHour < 6) {
     <header
       class={`relative overflow-hidden pt-8 pb-10 px-4 rounded-b-[3.5rem] shadow-2xl transition-all duration-1000 bg-gradient-to-b ${headerClass}`}
     >
-
       <div
         class="max-w-4xl mx-auto flex justify-between items-start relative z-10"
       >
@@ -77,8 +75,8 @@ if (londonHour >= 20 || londonHour < 6) {
               class={`text-3xl font-black tracking-tight leading-none ${londonHour >= 20 || londonHour < 6 ? "text-white" : "text-slate-900 dark:text-white"}`}
             >
               {greeting}, <span class={accentColor}
-                >{data?.username || "Explorer"} </span
-              >! 👋
+                >{data?.username || "Explorer"}
+              </span>! 👋
             </h1>
             <div class="flex items-center gap-2 mt-2 ml-1">
               <span class="relative flex h-2 w-2">
@@ -111,7 +109,7 @@ if (londonHour >= 20 || londonHour < 6) {
                 <p
                   class="text-xl font-black text-white leading-none tabular-nums tracking-tighter"
                 >
-                 <LiveClock client:load timeZone="Europe/London" />
+                  <LiveClock client:load timeZone="Europe/London" />
                 </p>
               </div>
             </div>
@@ -150,72 +148,76 @@ if (londonHour >= 20 || londonHour < 6) {
       </div>
     </header>
 
+    {
+      data?.username && (
+        <>
+          <div class="mt-12 mb-12 transform hover:scale-[1.02] transition-transform duration-300">
+            <DailySchedule scheduleArray={itineraryData} />
+          </div>
 
-    {data?.username && (
-      <>
-      <div
-        class="mt-12 mb-12 transform hover:scale-[1.02] transition-transform duration-300"
-      >
-        <DailySchedule scheduleArray={itineraryData} />
-      </div>
+          <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+            Recursos Principales
+          </h2>
 
-      <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-        Recursos Principales
-      </h2>
+          <div class="grid grid-cols-2 gap-4">
+            <a
+              href="/blog"
+              class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
+            >
+              <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                📚
+              </div>
+              <h3 class="font-bold text-slate-800">Wiki de IA</h3>
+              <p class="text-xs text-slate-500 mt-1">
+                Módulos y lecturas del curso.
+              </p>
+            </a>
 
-      <div class="grid grid-cols-2 gap-4">
-        <a
-        href="/blog"
-        class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
-        >
-        <div
-          class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform"
-        >
-          📚
-        </div>
-        <h3 class="font-bold text-slate-800">Wiki de IA</h3>
-        <p class="text-xs text-slate-500 mt-1">Módulos y lecturas del curso.</p>
-        </a>
-
-
-        <a
-        href="/preparacion"
-        class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
-        >
-        <div
-          class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform"
-        >
-          🧳
-        </div>
-        <h3 class="font-bold text-slate-800">Checklist</h3>
-        <p class="text-xs text-slate-500 mt-1">Maleta y documentos listos.</p>
-        </a>
-        
+            <a
+              href="/preparacion"
+              class="group p-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all"
+            >
+              <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                🧳
+              </div>
+              <h3 class="font-bold text-slate-800">Checklist</h3>
+              <p class="text-xs text-slate-500 mt-1">
+                Maleta y documentos listos.
+              </p>
+            </a>
+          </div>
 
 
-      </div>
-
-      <div
-        class="mt-12 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative"
-      >
-        <div class="relative z-10">
-        <h3 class="text-xl font-bold mb-2">¿Necesitas ayuda?</h3>
-        <p class="text-slate-400 text-sm mb-4">
-          Accede a los números de emergencia y soporte de la UdeG.
-        </p>
-        <a
-          href="/sos"
-          class="inline-block bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors"
-        >
-          Contactar Soporte
-        </a>
-        </div>
-        <div
-        class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl opacity-50"
-        >
-        </div>
-      </div>
-      </>
-    )}
+        </>
+      )
+    }
+              <div class="mt-12 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative">
+            <div class="relative z-10">
+              <h3 class="text-xl font-bold mb-2">Preguntas Frecuentes</h3>
+              
+              <a
+                href="/ayuda"
+                class="inline-block bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors"
+              >
+                Preguntas Frecuentes
+              </a>
+            </div>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl opacity-50"></div>
+          </div>
+          <div class="mt-12 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative">
+            <div class="relative z-10">
+              <h3 class="text-xl font-bold mb-2">¿Necesitas ayuda?</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Accede a los números de emergencia y soporte de la UdeG.
+              </p>
+              <a
+                href="/sos"
+                class="inline-block bg-white text-slate-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors"
+              >
+                Contactar Soporte
+              </a>
+            </div>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl opacity-50"></div>
+          </div>
   </main>
 </Layout>

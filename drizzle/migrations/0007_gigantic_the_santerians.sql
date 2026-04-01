@@ -1,0 +1,2 @@
+ALTER TABLE `notices` ALTER COLUMN "created_at" TO "created_at" integer DEFAULT '"2026-04-01T19:13:45.186Z"';--> statement-breakpoint
+ALTER TABLE `users` ADD `avatar_url` text DEFAULT '/img/default-avatar.png';

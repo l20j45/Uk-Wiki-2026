@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm/relations";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm"; // 👈 Importa esto
 
 export const itinerary = sqliteTable("itinerary", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -20,6 +21,11 @@ export const users = sqliteTable("users", {
   role: text("role").default("ALUMNO").notNull(), // 'ALUMNO', 'PROFESOR', 'COORDINADOR'
   isAdmin: integer("is_admin").default(0).notNull(),
   bio: text("bio"),
+  bloodType: text("blood_type"), // Ej: A+
+  allergies: text("allergies"),
+  emergencyContact: text("emergency_contact"),
+  avatarUrl: text("avatar_url").default("/img/default-avatar.png"),
+  qrUrl: text("qr_url"),
 });
 
 export const articles = sqliteTable("articles", {
@@ -54,7 +60,16 @@ export const notices = sqliteTable("notices", {
   createdAt: integer("created_at", { mode: "timestamp" }).default(new Date()),
 });
 
-// Relaciones para consultas fáciles
+// 3. DEFINIR LAS RELACIONES (Esto soluciona tu error)
 export const usersRelations = relations(users, ({ many }) => ({
-  socials: many(socialProfiles),
+  socials: many(socialProfiles), // Esto le dice a Drizzle que "socials" existe
+}));
+
+export const socialProfilesRelations = relations(socialProfiles, ({ one }) => ({
+  author: one(users, {
+    fields: [socialProfiles.userId],
+    references: [users.id],
+  })
+
+
 }));

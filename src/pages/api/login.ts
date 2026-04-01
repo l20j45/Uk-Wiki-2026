@@ -35,6 +35,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           sameSite: "strict",
           maxAge: 60 * 60 * 24 * 7,
         });
+        cookies.set("isAdmin", user.isAdmin === 1 ? "true" : "false", {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          maxAge: 60 * 60 * 24 * 7,
+        });
 
         // Enviamos el flag de admin en la respuesta
         return new Response(
