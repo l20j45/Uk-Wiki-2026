@@ -1,61 +1,234 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-// Aquí podrías listar todos los posts de Turso para editarlos o borrarlos
+import { db } from "../../db/db";
+import { users, itinerary } from "../../db/schema";
+import { desc, asc } from "drizzle-orm";
+import EventAdminTable from "../../components/EventAdminTable";
+import UserAdminTable from "../../components/UserAdminTable";
+
+const totalEvents = await db
+  .select()
+  .from(itinerary)
+  .orderBy(asc(itinerary.eventDate));
+
+// 3. Obtener últimos usuarios registrados
+const recentUsers = await db.query.users.findMany({
+  orderBy: [desc(users.id)],
+});
+const tableUser = recentUsers.map((u) => ({
+  id: u.id,
+  username: u.username,
+  fullName: u.fullName,
+  role: u.role,
+  qrUrl: u.qrUrl ?? "pendiente",
+  image: u.avatarUrl,
+}));
+
+
+console.log("🚀 ~ tableUser:", tableUser)
+
 ---
 
-<Layout title="Panel de Control">
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <div class="flex justify-between items-center mb-10">
-      <h1 class="text-3xl font-black">Gestión de Contenido</h1>
-      <a
-        href="/admin/nuevo"
-        class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition-transform"
-      >
-        + Nueva Entrada
-      </a>
-    </div>
+<Layout title="Admin Dashboard | UK 2026">
+  <main class="max-w-5xl mx-auto px-6 py-12 pb-32 bg-white">
+    <header class="mb-10 flex justify-between items-end">
+      <div>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tight">
+          Admin Console
+        </h1>
+        <p class="text-slate-500 mt-2 font-medium">
+          Gestiona alumnos, QRs y cronograma del viaje.
+        </p>
+      </div>
+      <div class="text-right">
+        <span
+          class="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full"
+        >
+          Estás en modo Dios ✨
+        </span>
+      </div>
+    </header>
 
-    <div class="grid gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       <div
-        class="bg-white p-6 rounded-3xl border border-slate-100 flex justify-between items-center"
+        class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
       >
-        <div>
-          <h3 class="font-bold">Protocolo NHS</h3>
-          <p class="text-xs text-slate-400">Importancia: 1</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="text-slate-400 hover:text-indigo-600">Editar</button>
-          <button class="text-rose-400">Borrar</button>
-        </div>
+        <p
+          class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+        >
+          Alumnos
+        </p>
+        <h2 class="text-4xl font-black text-slate-900">{recentUsers.length}</h2>
+      </div>
+      <div
+        class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
+      >
+        <p
+          class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+        >
+          Eventos UK
+        </p>
+        <h2 class="text-4xl font-black text-slate-900">{totalEvents.length}</h2>
+      </div>
+      <div
+        class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-indigo-100"
+      >
+        <p
+          class="text-[10px] font-black uppercase text-indigo-200 tracking-widest mb-1"
+        >
+          Status Sistema
+        </p>
+        <h2 class="text-2xl font-black italic">Operativo</h2>
       </div>
     </div>
-  </div>
-    <main class="max-w-4xl mx-auto px-6 py-12">
-    <div class="flex justify-between items-center mb-10">
-      <h1 class="text-3xl font-black">Gestión de Contenido</h1>
-      <a
-        href="/admin/itinerario/nuevo"
-        class="bg-indigo-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition-transform"
-      >
-        + Nueva Entrada
-      </a>
-    </div>
 
-    <div class="grid gap-4">
-      <div
-        class="bg-white p-6 rounded-3xl border border-slate-100 flex justify-between items-center"
+    <section class="mb-12">
+      <h3
+        class="text-xs font-black uppercase text-slate-400 ml-4 mb-6 tracking-widest"
       >
-        <div>
-          <h3 class="font-bold">Protocolo NHS</h3>
-          <p class="text-xs text-slate-400">Importancia: 1</p>
-        </div>
-        <div class="flex gap-2">
-          <button class="text-slate-400 hover:text-indigo-600">Editar</button>
-          <button class="text-rose-400">Borrar</button>
-        </div>
+        Acciones Rápidas
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a
+          href="/admin/usuarios/nuevo"
+          class="p-6 bg-white border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:border-indigo-400 hover:bg-indigo-50 transition-all group"
+        >
+          <span class="text-2xl group-hover:scale-110 transition-transform"
+            >👤</span
+          >
+          <span class="text-[10px] font-black uppercase text-slate-600"
+            >Nuevo Usuario</span
+          >
+        </a>
+        <a
+          href="/admin/itinerario/nuevo"
+          class="p-6 bg-white border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:border-emerald-400 hover:bg-emerald-50 transition-all group"
+        >
+          <span class="text-2xl group-hover:scale-110 transition-transform"
+            >📅</span
+          >
+          <span class="text-[10px] font-black uppercase text-slate-600"
+            >Crear Evento</span
+          >
+        </a>
+        <a
+          href="/admin/notificaciones"
+          class="p-6 bg-white border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:border-amber-400 hover:bg-amber-50 transition-all group"
+        >
+          <span class="text-2xl group-hover:scale-110 transition-transform"
+            >🔔</span
+          >
+          <span class="text-[10px] font-black uppercase text-slate-600"
+            >Aviso Global</span
+          >
+        </a>
+        <button
+          onclick="window.print()"
+          class="p-6 bg-white border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:border-slate-400 hover:bg-slate-50 transition-all group"
+        >
+          <span class="text-2xl group-hover:scale-110 transition-transform"
+            >🖨️</span
+          >
+          <span class="text-[10px] font-black uppercase text-slate-600"
+            >Imprimir Reporte</span
+          >
+        </button>
       </div>
-    </div>
+    </section>
+
+    <section
+      class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden"
+    >
+
+
+      <!-- <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50">
+              <th
+                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
+                >Usuario</th
+              >
+              <th
+                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
+                >Rol</th
+              >
+              <th
+                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
+                >QR Status</th
+              >
+              <th
+                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right"
+                >Acciones</th
+              >
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            {
+              recentUsers.map((u) => (
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                  <td class="p-6">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-sm font-bold text-indigo-600 overflow-hidden">
+                        {u.avatarUrl ? (
+                          <img
+                            src={u.avatarUrl}
+                            class="w-full h-full object-cover"
+                          />
+                        ) : (
+                          u.username[0].toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <p class="text-sm font-bold text-slate-800">
+                          {u.fullName || u.username}
+                        </p>
+                        <p class="text-[10px] text-slate-400">@{u.username}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-6">
+                    <span
+                      class={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${u.role === "admin" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}
+                    >
+                      {u.role}
+                    </span>
+                  </td>
+                  <td class="p-6">
+                    <div class="flex items-center gap-2">
+                      <div
+                        class={`w-2 h-2 rounded-full ${u.qrUrl ? "bg-emerald-500" : "bg-rose-500"}`}
+                      />
+                      <span class="text-xs font-medium text-slate-600">
+                        {u.qrUrl ? "Generado" : "Pendiente"}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="p-6 text-right">
+                    <div class="flex justify-end gap-2">
+                      <a
+                        href={`/admin/usuarios/editar/${u.id}`}
+                        class="p-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-200 transition-all"
+                        title="Editar"
+                      >
+                        ✏️
+                      </a>
+                      <button
+                        class="p-2 hover:bg-rose-50 rounded-lg transition-all"
+                        title="Eliminar"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div> -->
+      <UserAdminTable client:load initialUsers={tableUser} />|
+      <EventAdminTable client:load initialEvents={totalEvents} />
+    </section>
   </main>
-
-
-</Layout>
+</Layout>dev

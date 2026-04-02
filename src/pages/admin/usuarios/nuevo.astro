@@ -1,0 +1,131 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { db } from "../../../db/db";
+import { users } from "../../../db/schema";
+
+let errorMessage = "";
+let debugError = "";
+
+if (Astro.request.method === "POST") {
+  try {
+    const formData = await Astro.request.formData();
+    const data = {
+      username: formData.get("username")?.toString().toLowerCase(),
+      password: formData.get("password")?.toString(),
+      fullName: formData.get("fullName")?.toString(),
+      role: formData.get("role")?.toString() || "user",
+    };
+
+    // LOG DE CONTROL: Mira tu terminal cuando des clic
+    console.log("Intentando insertar:", data);
+
+    if (!data.username || !data.password) {
+      throw new Error("Usuario y contraseña son obligatorios");
+    }
+
+    const result = await db.insert(users).values(data).returning();
+    
+    console.log("Inserción exitosa:", result);
+    return Astro.redirect("/admin?success=true");
+
+  } catch (e) {
+    console.error("ERROR EN POST:", e);
+    debugError = e instanceof Error ? e.message : "Error desconocido";
+  }
+}
+---
+
+<Layout title="Nuevo Usuario | Admin">
+  <main class="max-w-2xl mx-auto px-6 py-12">
+    <header class="mb-10">
+      <a href="/admin" class="text-xs font-black uppercase text-indigo-600 hover:underline flex items-center gap-2 mb-4">
+        ← Volver al Panel
+      </a>
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Registrar Nuevo Alumno</h1>
+      <p class="text-slate-500 mt-2">Crea las credenciales de acceso para la Wiki UK 2026.</p>
+    </header>
+
+    {errorMessage && (
+      <div class="bg-rose-50 border border-rose-100 text-rose-600 p-4 rounded-2xl mb-6 text-sm font-medium">
+        ⚠️ {errorMessage}
+      </div>
+    )}
+
+    <form method="POST" class="space-y-6">
+      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-5">
+        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Credenciales de Acceso</h3>
+        
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Nombre de Usuario</label>
+          <input 
+            type="text" 
+            name="username" 
+            placeholder="ej: drojas"
+            required
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Contraseña Temporal</label>
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="••••••••"
+            required
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+          />
+        </div>
+      </section>
+
+      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-5">
+        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Información Personal</h3>
+        
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Nombre Completo</label>
+          <input 
+            type="text" 
+            name="fullName" 
+            placeholder="Daniel Rojas"
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Rol en el Sistema</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="cursor-pointer">
+              <input type="radio" name="role" value="user" checked class="peer hidden" />
+              <div class="p-4 text-center rounded-2xl border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all">
+                <span class="block text-xl mb-1">🎓</span>
+                <span class="text-[10px] font-black uppercase text-slate-600">Alumno</span>
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="role" value="admin" class="peer hidden" />
+              <div class="p-4 text-center rounded-2xl border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all">
+                <span class="block text-xl mb-1">🔑</span>
+                <span class="text-[10px] font-black uppercase text-slate-600">Admin</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <div class="flex gap-3">
+        <button 
+          type="submit" 
+          class="flex-1 bg-indigo-600 text-white font-black py-5 rounded-[2rem] shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs"
+        >
+          Crear Usuario
+        </button>
+        <a 
+          href="/admin" 
+          class="px-8 flex items-center justify-center bg-slate-100 text-slate-400 font-black rounded-[2rem] hover:bg-slate-200 transition-all uppercase tracking-widest text-[10px]"
+        >
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </main>
+</Layout>

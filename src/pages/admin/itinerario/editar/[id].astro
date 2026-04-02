@@ -1,0 +1,172 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import { db } from "../../../../db/db";
+import { itinerary } from "../../../../db/schema";
+import { eq } from "drizzle-orm";
+
+const { id } = Astro.params;
+const itinerarioId = parseInt(id || "");
+
+if (isNaN(itinerarioId)) return Astro.redirect("/admin");
+
+const itineraryData = await db.query.itinerary.findFirst({
+  where: eq(itinerary.id, itinerarioId),
+});
+
+if (!itineraryData) return Astro.redirect("/admin?error=itinerary_not_found");
+
+// 2. Manejar el POST de actualización
+let message = "";
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+
+  const title = formData.get("title")?.toString() || "";
+  const description = formData.get("description")?.toString() || "";
+  const eventDate = formData.get("eventDate")?.toString() || "";
+  const eventTime = formData.get("eventTime")?.toString() || "";
+  const location = formData.get("location")?.toString() || "";
+  const icon = formData.get("icon")?.toString() || "📍";
+  try {
+    await db
+      .update(itinerary)
+      .set({ title, description, eventDate, eventTime, location, icon })
+      .where(eq(itinerary.id, itinerarioId));
+
+    return Astro.redirect("/admin?success=itinerary_updated");
+  } catch (e) {
+    message = "Error al actualizar los datos en la base de datos.";
+  }
+}
+---
+
+<Layout title="Nuevo Evento | Admin">
+  <main class="max-w-2xl mx-auto px-6 py-12 pb-32">
+    <header class="mb-10">
+      <a
+        href="/admin"
+        class="text-[10px] font-black uppercase text-indigo-600 tracking-widest mb-4 block"
+        >← Panel de Control</a
+      >
+      <h1 class="text-3xl font-black text-slate-900">Programar Actividad</h1>
+    </header>
+
+    <form method="POST" class="space-y-6">
+      <div
+        class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-5"
+      >
+        <div>
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+            >Título del Evento</label
+          >
+          <input
+            name="title"
+            type="text"
+            placeholder="Ej: Visita al British Museum"
+            required
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-sm"
+            value={itineraryData.title}
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+              >Fecha</label
+            >
+            <input
+              name="eventDate"
+              type="date"
+              required
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+              value={itineraryData.eventDate}
+            />
+          </div>
+          <div>
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+              >Hora (UK Time)</label
+            >
+            <input
+              name="eventTime"
+              type="time"
+              required
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+              value={itineraryData.eventTime}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+            >Ubicación / Punto de Encuentro</label
+          >
+          <input
+            name="location"
+            type="text"
+            placeholder="Ej: Estación King's Cross"
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+            value={itineraryData.location}
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+            >Emoji/Icono</label
+          >
+          <select
+            name="icon"
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-xl"
+          >
+            <option value="📍" selected={itineraryData.icon === "📍"}
+              >📍 Ubicación</option
+            >
+            <option value="🏛️" selected={itineraryData.icon === "🏛️"}
+              >🏛️ Museo / Cultura</option
+            >
+            <option value="🍕" selected={itineraryData.icon === "🍕"}
+              >🍕 Comida</option
+            >
+            <option value="🚇" selected={itineraryData.icon === "🚇"}
+              >🚇 Transporte / Metro</option
+            >
+            <option value="🏨" selected={itineraryData.icon === "🏨"}
+              >🏨 Hotel / Check-in</option
+            >
+            <option value="✈️" selected={itineraryData.icon === "✈️"}
+              >✈️ Vuelo / Aeropuerto</option
+            >
+            <option value="🎓" selected={itineraryData.icon === "🎓"}
+              >🎓 Universidad / Clase</option
+            >
+          </select>
+        </div>
+
+        <div>
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+             >Instrucciones Adicionales</label
+          >
+          <textarea
+            name="description"
+            rows="3"
+            placeholder="Llevar credencial y paraguas..."
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+            
+          >{itineraryData.description}</textarea>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-indigo-600 text-white font-black py-6 rounded-[2rem] shadow-xl hover:scale-[1.02] transition-all uppercase tracking-widest text-xs"
+      >
+        Publicar en Itinerario
+      </button>
+    </form>
+  </main>
+</Layout>

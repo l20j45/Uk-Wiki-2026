@@ -64,6 +64,20 @@
       "when": 1775075175938,
       "tag": "0008_overrated_firestar",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1775079420448,
+      "tag": "0009_daily_champions",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1775162558198,
+      "tag": "0010_heavy_jane_foster",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 import SocialFields from "../../components/SocialFields";
 import { v2 as cloudinary } from "cloudinary";
 
-// Configuración de Cloudinary
 cloudinary.config({
   cloud_name: import.meta.env.CLOUDINARY_CLOUD_NAME,
   api_key: import.meta.env.CLOUDINARY_API_KEY,
@@ -19,63 +18,51 @@ if (!user) return Astro.redirect("/login");
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
   
+  // Extraer nuevos campos: Email y Teléfono
+  const email = formData.get("email")?.toString() || "";
+  const phone = formData.get("phone")?.toString() || "";
+  
   const fullName = formData.get("fullName")?.toString() || "";
   const bio = formData.get("bio")?.toString() || "";
   const bloodType = formData.get("bloodType")?.toString() || "";
   const allergies = formData.get("allergies")?.toString() || "";
   const emergencyContact = formData.get("emergencyContact")?.toString() || "";
-  const platforms = formData.getAll("socialPlatform[]");
-  const urls = formData.getAll("socialUrl[]");
   const avatarFile = formData.get("avatar") as File;
 
   try {
     let avatarUrl = undefined;
-
-    // Subida a Cloudinary
     if (avatarFile && avatarFile.size > 0) {
       const arrayBuffer = await avatarFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-
       const uploadResult = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { 
-            folder: "uk_wiki_2026",
-            public_id: `user_${user.id}`,
-            transformation: [{ width: 500, height: 500, crop: "fill", gravity: "face" }] 
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
+          { folder: "uk_wiki_2026", public_id: `user_${user.id}` },
+          (error, result) => { error ? reject(error) : resolve(result); }
         ).end(buffer);
       });
       avatarUrl = (uploadResult as any).secure_url;
     }
 
-    // A. Actualizar Usuario
-    const userUpdate: any = { fullName, bio, bloodType, allergies, emergencyContact };
+    // Actualizar Usuario incluyendo Email y Teléfono
+    const userUpdate: any = { fullName, bio, bloodType, allergies, emergencyContact, email, phone };
     if (avatarUrl) userUpdate.avatarUrl = avatarUrl;
 
-    await db.update(users)
-      .set(userUpdate)
-      .where(eq(users.id, user.id));
+    await db.update(users).set(userUpdate).where(eq(users.id, user.id));
 
-    // B. Actualizar Redes Sociales
+    // Redes Sociales (mismo proceso anterior)
+    const platforms = formData.getAll("socialPlatform[]");
+    const urls = formData.getAll("socialUrl[]");
     await db.delete(socialProfiles).where(eq(socialProfiles.userId, user.id));
-
     const socialEntries = platforms.map((p, i) => ({
       userId: user.id,
       platform: p?.toString() || "Social",
       url: urls[i]?.toString() || ""
     })).filter(s => s.url.length > 5);
-
-    if (socialEntries.length > 0) {
-      await db.insert(socialProfiles).values(socialEntries);
-    }
+    if (socialEntries.length > 0) await db.insert(socialProfiles).values(socialEntries);
 
     return Astro.redirect("/perfil?success=true");
   } catch (error) {
-    console.error("Error crítico:", error);
+    console.error(error);
     return Astro.redirect("/perfil/editar?error=db_failed");
   }
 }
@@ -87,99 +74,68 @@ const userData = await db.query.users.findFirst({
 ---
 
 <Layout title="Editar Perfil | UK 2026">
-  <main class="max-w-2xl mx-auto px-6 py-10 pb-32">
-    
+  <main class="max-w-2xl mx-auto px-6 py-10 pb-32 bg-white">
     <header class="flex items-center justify-between mb-8">
-      <a href="/perfil" class="text-slate-400 hover:text-indigo-600 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-      </a>
-      <h1 class="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Editar Perfil</h1>
-      <div class="w-6"></div> 
+      <a href="/perfil" class="text-slate-400 hover:text-indigo-600 transition-colors">← Volver</a>
+      <h1 class="text-xl font-black uppercase tracking-widest text-slate-900">Configurar Perfil</h1>
+      <div class="w-6"></div>
     </header>
 
     <form method="POST" enctype="multipart/form-data" class="space-y-8">
       
-      <div class="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm mt-6">
-        <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 ml-1">Foto de Perfil</h3>
-        <div class="flex items-center gap-4">
-          <div class="relative group cursor-pointer">
-            <input
-              type="file"
-              name="avatar"
-              accept="image/*"
-              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-            <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-indigo-50 transition-colors overflow-hidden">
-              {userData?.avatarUrl ? (
-                <img src={userData.avatarUrl} class="w-full h-full object-cover" />
-              ) : (
-                "📸"
-              )}
-            </div>
-          </div>
-          <div>
-            <p class="text-[10px] text-slate-400 font-medium leading-tight">
-              Click en el cuadro para cambiar foto.<br/>
-              Se actualizará al guardar todo el perfil.
-            </p>
-          </div>
+      <section class="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex items-center gap-4">
+        <div class="relative w-20 h-20 bg-white rounded-3xl border-4 border-white shadow-sm overflow-hidden group">
+          <input type="file" name="avatar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+          {userData?.avatarUrl ? <img src={userData.avatarUrl} class="w-full h-full object-cover" /> : <div class="flex items-center justify-center h-full text-2xl">📸</div>}
         </div>
-      </div>
-
-      <section class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-        <h3 class="text-[10px] font-black uppercase text-indigo-500 mb-6 tracking-widest">Información Pública</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Nombre Completo</label>
-            <input type="text" name="fullName" value={userData?.fullName} class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" required />
-          </div>
-          <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Biografía / Mensaje</label>
-            <textarea name="bio" rows="3" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white">{userData?.bio}</textarea>
-          </div>
-        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Toca la imagen para cambiar tu foto</p>
       </section>
 
-      <section class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div class="flex items-center gap-2 mb-6">
-          <span class="text-rose-500 text-xl">🏥</span>
-          <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest">Datos de Emergencia</h3>
-        </div>
+      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Información de Contacto</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Tipo de Sangre</label>
-            <select name="bloodType" class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white">
-              <option value="" disabled selected={!userData?.bloodType}>Selecciona</option>
-              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(type => (
-                <option value={type} selected={userData?.bloodType === type}>{type}</option>
-              ))}
-            </select>
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Email</label>
+            <input type="email" name="email" value={userData?.email} placeholder="tu@correo.com" class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" />
           </div>
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Alergias</label>
-            <input type="text" name="allergies" value={userData?.allergies} class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" />
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">WhatsApp / Tel</label>
+            <input type="tel" name="phone" value={userData?.phone} placeholder="+52 33..." class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" />
           </div>
-        </div>
-        <div class="mt-4">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Contacto de Emergencia</label>
-          <input type="text" name="emergencyContact" value={userData?.emergencyContact} class="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none ring-1 ring-slate-100 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white" />
         </div>
       </section>
 
-      <section class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
+      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
+        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Biografía Pública</h3>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Nombre Completo</label>
+          <input type="text" name="fullName" value={userData?.fullName} class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" required />
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Bio</label>
+          <textarea name="bio" rows="3" class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none">{userData?.bio}</textarea>
+        </div>
+      </section>
+
+      <section class="bg-rose-50/30 p-8 rounded-[2.5rem] border border-rose-100 shadow-sm space-y-4">
+        <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest mb-2">Datos Médicos (Crítico)</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <select name="bloodType" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none">
+             <option value="" disabled selected={!userData?.bloodType}>Sangre</option>
+             {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(t => <option value={t} selected={userData?.bloodType === t}>{t}</option>)}
+          </select>
+          <input type="text" name="allergies" value={userData?.allergies} placeholder="Alergias" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none" />
+        </div>
+        <input type="text" name="emergencyContact" value={userData?.emergencyContact} placeholder="Contacto de emergencia (Nombre y Tel)" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none" />
+      </section>
+
+      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
          <SocialFields client:load initialSocials={userData?.socials?.map((s: any) => ({ platform: s.platform, url: s.url })) || []} />
       </section>
 
-      <div class="flex flex-col gap-3">
-        <button type="submit" class="w-full bg-indigo-600 text-white font-black py-5 rounded-[2rem] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
-          Guardar Cambios Totales
-        </button>
-        <a href="/perfil" class="w-full text-center py-4 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600">
-          Cancelar
-        </a>
-      </div>
+      <button type="submit" class="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
+        Actualizar Perfil Completo
+      </button>
 
     </form>
   </main>

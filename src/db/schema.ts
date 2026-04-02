@@ -9,6 +9,7 @@ export const itinerary = sqliteTable("itinerary", {
   title: text("title").notNull(),
   description: text("description"),
   icon: text("icon").default("📍"),
+  location: text("location"),
 });
 
 export const users = sqliteTable("users", {
@@ -16,8 +17,8 @@ export const users = sqliteTable("users", {
   username: text("username").notNull(),
   password: text("password").notNull(),
   fullName: text("full_name").notNull(),
-  phone: text("phone").notNull(),
-  email: text("email").notNull(),
+  phone: text("phone"),
+  email: text("email"),
   role: text("role").default("ALUMNO").notNull(), // 'ALUMNO', 'PROFESOR', 'COORDINADOR'
   isAdmin: integer("is_admin").default(0).notNull(),
   bio: text("bio"),

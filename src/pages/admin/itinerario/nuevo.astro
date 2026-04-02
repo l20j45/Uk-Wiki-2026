@@ -1,51 +1,81 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import { db } from "../../../db/db";
+import { itinerary } from "../../../db/schema";
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  
+  await db.insert(itinerary).values({
+    title: data.get("title")?.toString() || "",
+    description: data.get("description")?.toString(),
+    eventDate: data.get("eventDate")?.toString() || "",
+    eventTime: data.get("eventTime")?.toString() || "",
+    location: data.get("location")?.toString(),
+    icon: data.get("icon")?.toString() || "📍",
+  });
+
+  return Astro.redirect("/admin?success=event_created");
+}
 ---
 
-<Layout title="Nuevo Evento | Staff">
-  <main class="max-w-xl mx-auto p-6">
-    <div class="bg-white dark:bg-slate-900 p-8 rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800">
-      <header class="mb-8 text-center">
-        <span class="text-4xl">📅</span>
-        <h1 class="text-2xl font-black mt-4 text-slate-900 ">Agregar Actividad</h1>
-      </header>
+<Layout title="Nuevo Evento | Admin">
+  <main class="max-w-2xl mx-auto px-6 py-12 pb-32">
+    <header class="mb-10">
+      <a href="/admin" class="text-[10px] font-black uppercase text-indigo-600 tracking-widest mb-4 block">← Panel de Control</a>
+      <h1 class="text-3xl font-black text-slate-900">Programar Actividad</h1>
+    </header>
 
-      <form action="/api/itinerary" method="POST" class="space-y-5">
+    <form method="POST" class="space-y-6">
+      <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-5">
         <div>
-          <label class="text-xs font-black uppercase text-slate-400 ml-2">Título del Evento</label>
-          <input type="text" name="title" placeholder="Ej: Visita al British Museum" required
-                 class="w-full p-4 bg-slate-50  rounded-2xl border-none ring-indigo-500 focus:ring-2 outline-none " />
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Título del Evento</label>
+          <input name="title" type="text" placeholder="Ej: Visita al British Museum" required 
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-sm" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="text-xs font-black uppercase text-slate-400 ml-2">Fecha</label>
-            <input type="date" name="eventDate" required
-                   class="w-full p-4 bg-slate-50  rounded-2xl border-none ring-indigo-500 focus:ring-2 outline-none " />
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Fecha</label>
+            <input name="eventDate" type="date" required 
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
           </div>
           <div>
-            <label class="text-xs font-black uppercase text-slate-400 ml-2">Hora (LDN)</label>
-            <input type="time" name="eventTime" required
-                   class="w-full p-4 bg-slate-50  rounded-2xl border-none ring-indigo-500 focus:ring-2 outline-none " />
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Hora (UK Time)</label>
+            <input name="eventTime" type="time" required 
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
           </div>
         </div>
 
         <div>
-          <label class="text-xs font-black uppercase text-slate-400 ml-2">Icono (Emoji)</label>
-          <input type="text" name="icon" placeholder="🏛️" 
-                 class="w-full p-4 bg-slate-50  rounded-2xl border-none ring-indigo-500 focus:ring-2 outline-none " />
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Ubicación / Punto de Encuentro</label>
+          <input name="location" type="text" placeholder="Ej: Estación King's Cross" 
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
         </div>
 
         <div>
-          <label class="text-xs font-black uppercase text-slate-400 ml-2">Descripción / Notas</label>
-          <textarea name="description" rows="3" placeholder="Punto de reunión: Entrada principal..."
-                    class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-indigo-500 focus:ring-2 outline-none "></textarea>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Emoji/Icono</label>
+          <select name="icon" class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-xl">
+            <option value="📍">📍 Ubicación</option>
+            <option value="🏛️">🏛️ Museo / Cultura</option>
+            <option value="🍕">🍕 Comida</option>
+            <option value="🚇">🚇 Transporte / Metro</option>
+            <option value="🏨">🏨 Hotel / Check-in</option>
+            <option value="✈️">✈️ Vuelo / Aeropuerto</option>
+            <option value="🎓">🎓 Universidad / Clase</option>
+          </select>
         </div>
 
-        <button type="submit" class="w-full bg-indigo-600 text-white font-black py-5 rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 dark:shadow-none uppercase tracking-widest text-sm">
-          Publicar en la Wiki
-        </button>
-      </form>
-    </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Instrucciones Adicionales</label>
+          <textarea name="description" rows="3" placeholder="Llevar credencial y paraguas..." 
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-indigo-600 text-white font-black py-6 rounded-[2rem] shadow-xl hover:scale-[1.02] transition-all uppercase tracking-widest text-xs">
+        Publicar en Itinerario
+      </button>
+    </form>
   </main>
 </Layout>

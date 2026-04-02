@@ -1,154 +1,142 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-
 import { db } from "../../db/db";
-import { users, socialProfiles } from "../../db/schema";
+import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import QRCode from "../../components/QRCode.astro";
 
-// 1. Obtener usuario de la sesión (inyectado por middleware)
-// Usamos Astro.locals
 const user = Astro.locals.user;
-
-// Si necesitas la cookie directamente por algo extra:
-const session = Astro.cookies.get("user_session");
 
 if (!user) {
   return Astro.redirect("/login");
 }
 
-// 2. Traer info extendida (Redes Sociales)
 const userData = await db.query.users.findFirst({
   where: eq(users.id, user.id),
   with: {
     socials: true,
   },
 });
-
-const initials = userData?.fullName
-  .split(" ")
-  .map((n) => n[0])
-  .join("")
-  .toUpperCase();
 ---
 
 <Layout title={`Perfil | ${userData?.fullName}`}>
-  <main class="max-w-2xl mx-auto px-6 py-10 pb-32">
-    <button class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors">
-      <a href="/perfil/editar">Editar Perfil</a>
-    </button>
-    <section class="text-center mb-10">
-      
-      <div class="relative inline-block">
-        </p>
-        <div
-          class="w-60 h-60 bg-white/20 rounded-2xl mx-auto flex items-center justify-center text-2xl font-black backdrop-blur-md"
-        >
+  <main class="max-w-2xl mx-auto px-6 py-10 pb-32 bg-white">
+    
+    <div class="flex justify-between items-center mb-10">
+      <a href="/perfil/editar" class="px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all shadow-sm shadow-indigo-100/50">
+        Editar Perfil
+      </a>
+      <form action="/api/auth/logout" method="POST">
+        <button type="submit" class="text-[10px] font-black uppercase tracking-widest text-rose-400 hover:text-rose-600 transition-colors">
+          Cerrar Sesión
+        </button>
+      </form>
+    </div>
+
+    <section class="text-center mb-12">
+      <div class="relative inline-block mb-6">
+        <div class="w-48 h-48 bg-slate-50 rounded-[3rem] p-3 border-2 border-slate-100 shadow-xl shadow-slate-100">
           <img
-            src={user.avatarUrl?.replace(
-              "/upload/",
-              "/upload/w_500,h_500,c_thumb,g_face/",
-            )}
+            src={userData?.avatarUrl?.replace("/upload/", "/upload/w_500,h_500,c_thumb,g_face/") || "/default-avatar.png"}
             alt="Foto ID"
-            class="rounded-xl"
+            class="w-full h-full object-cover rounded-[2.2rem]"
           />
         </div>
-        <span
-          class="absolute bottom-2 right-0 bg-emerald-500 border-4 border-white dark:border-slate-950 w-6 h-6 rounded-full"
-        ></span>
+        <span class="absolute bottom-4 right-4 bg-emerald-500 border-4 border-white w-6 h-6 rounded-full shadow-lg"></span>
       </div>
 
-      <h1
-        class="text-2xl font-black text-slate-900 dark:text-white leading-none"
-      >
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">
         {userData?.fullName}
       </h1>
-      <p class="text-indigo-500 font-bold text-sm mt-1">
-        @{userData?.username}
-      </p>
-
-      <div class="mt-4 flex justify-center gap-2">
-        <span
-          class="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-500"
-        >
+      <p class="text-indigo-500 font-bold text-sm mt-1">@{userData?.username}</p>
+      
+      <div class="mt-4">
+        <span class="px-4 py-1.5 rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
           {userData?.role}
         </span>
       </div>
     </section>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
       <div class="space-y-6">
-        <div
-          class="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm"
-        >
-          <h3 class="text-xs font-black uppercase text-slate-400 mb-3 ml-1">
-            Biografía
-          </h3>
-          <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-            {
-              userData?.bio ||
-                "Sin biografía aún. ¡Cuéntanos algo sobre ti para el viaje!"
-            }
+        <div class="bg-indigo-600 p-6 rounded-[2.5rem] shadow-xl shadow-indigo-100 text-white">
+          <h3 class="text-[10px] font-black uppercase text-indigo-200 mb-4 tracking-widest">Contacto Directo</h3>
+          <div class="space-y-3">
+            {userData?.email && (
+              <a href={`mailto:${userData.email}`} class="flex items-center gap-3 p-3 bg-white/10 rounded-2xl hover:bg-white/20 transition-all border border-white/10 group">
+                <span class="text-lg">✉️</span>
+                <span class="text-xs font-bold truncate">{userData.email}</span>
+              </a>
+            )}
+            {userData?.phone && (
+              <a href={`https://wa.me/${userData.phone.replace(/\D/g,'')}`} target="_blank" class="flex items-center gap-3 p-3 bg-white/10 rounded-2xl hover:bg-white/20 transition-all border border-white/10">
+                <span class="text-lg">💬</span>
+                <span class="text-xs font-bold">{userData.phone}</span>
+              </a>
+            )}
+            {!userData?.email && !userData?.phone && <p class="text-[10px] italic opacity-60">Sin datos de contacto.</p>}
+          </div>
+        </div>
+
+        <div class="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest">Sobre mí</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            {userData?.bio || "Sin biografía aún. Actualiza tu perfil para que el staff te conozca mejor."}
           </p>
         </div>
-
-        <div
-          class="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm"
-        >
-          <div class="flex justify-between items-center mb-4 ml-1">
-            <h3 class="text-xs font-black uppercase text-slate-400">
-              Redes Sociales
-            </h3>
-            <a
-              href="/perfil/editar"
-              class="text-[10px] font-bold text-indigo-600 uppercase">Editar</a
-            >
-          </div>
-
-          <div class="space-y-2">
-            {
-              userData?.socials.map((social) => (
-                <a
-                  href={social.url}
-                  target="_blank"
-                  class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl hover:bg-indigo-50 transition-colors group"
-                >
-                  <span class="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    {social.platform}
-                  </span>
-                  <span class="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    ↗
-                  </span>
-                </a>
-              ))
-            }
-            {
-              userData?.socials.length === 0 && (
-                <p class="text-xs text-slate-400 italic text-center py-2">
-                  No has agregado redes.
-                </p>
-              )
-            }
-          </div>
-        </div>
       </div>
 
       <div class="space-y-6">
-        <div
-          class="bg-white dark:bg-slate-900 p-2 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm"
-        >
+        <div class="bg-slate-50 p-4 rounded-[2.5rem] border border-slate-100 shadow-sm text-center">
+          <h3 class="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest mt-2">QR Identificación</h3>
           {userData && <QRCode qrUrl={userData.qrUrl} username={userData.username} />}
+          <p class="text-[9px] font-bold text-slate-400 uppercase mt-4 mb-2 tracking-tighter">Acceso rápido a ficha médica</p>
         </div>
 
-        <form action="/api/auth/logout" method="POST">
-          <button
-            type="submit"
-            class="w-full p-4 rounded-2xl border-2 border-rose-100 dark:border-rose-900/30 text-rose-500 font-black uppercase text-xs tracking-widest hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all"
-          >
-            Cerrar Sesión
-          </button>
-        </form>
+        <div class="bg-white p-7 rounded-[2.5rem] border border-slate-100 shadow-sm">
+          <h3 class="text-[10px] font-black uppercase text-slate-400 mb-5 tracking-widest">Links Externos</h3>
+          <div class="grid grid-cols-2 gap-3">
+            {userData?.socials.map((social) => (
+              <a
+                href={social.url}
+                target="_blank"
+                class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl hover:bg-indigo-50 hover:scale-[1.02] transition-all border border-transparent hover:border-indigo-100 group"
+              >
+                <span class="text-xs font-black text-slate-700 uppercase tracking-tighter mb-1">
+                  {social.platform}
+                </span>
+                <span class="text-indigo-400 text-sm">↗</span>
+              </a>
+            ))}
+            {userData?.socials.length === 0 && (
+              <p class="col-span-2 text-[10px] text-slate-300 italic text-center py-4">No hay links registrados.</p>
+            )}
+          </div>
+        </div>
       </div>
+
     </div>
+
+    <div class="mt-8 p-8 bg-rose-50 rounded-[2.5rem] border border-rose-100 flex items-center justify-between gap-6">
+       <div class="flex-1">
+         <h4 class="text-[10px] font-black uppercase text-rose-500 tracking-widest mb-2">Información Médica</h4>
+         <div class="flex gap-4">
+           <div>
+             <p class="text-[9px] font-bold text-rose-300 uppercase">Sangre</p>
+             <p class="text-lg font-black text-rose-700">{userData?.bloodType || "--"}</p>
+           </div>
+           <div class="border-l border-rose-200 pl-4">
+             <p class="text-[9px] font-bold text-rose-300 uppercase">Alergias</p>
+             <p class="text-xs font-bold text-rose-700 truncate max-w-[150px]">{userData?.allergies || "Ninguna"}</p>
+           </div>
+         </div>
+       </div>
+       <div class="text-right">
+         <p class="text-[9px] font-bold text-rose-300 uppercase">Contacto SOS</p>
+         <p class="text-xs font-black text-rose-700">{userData?.emergencyContact || "No configurado"}</p>
+       </div>
+    </div>
+
   </main>
 </Layout>
