@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm/relations";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm"; // 👈 Importa esto
+
 
 export const itinerary = sqliteTable("itinerary", {
   id: integer("id").primaryKey({ autoIncrement: true }),
