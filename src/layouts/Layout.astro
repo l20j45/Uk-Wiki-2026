@@ -3,6 +3,7 @@ interface Props {
   title: string;
 }
 const { title } = Astro.props;
+import BackToTop from "../components/BackToTop.astro";
 import PanicButton from "../components/PanicButton.jsx";
 import "../styles/global.css";
 
@@ -103,6 +104,7 @@ const user = Astro.locals.user;
     >
       🚨
     </a>
+    <BackToTop />
 
     <footer
       class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200"

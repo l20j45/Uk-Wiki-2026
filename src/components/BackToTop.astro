@@ -1,0 +1,28 @@
+---
+/* No necesita props por ahora, pero podemos agregar color, posición, icono, etc. */
+---
+
+<button 
+  id="backToTop"
+  class="fixed bottom-25 right-6 w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg opacity-0 pointer-events-none transition-all duration-300 hover:bg-slate-800"
+>
+  ↑
+</button>
+
+<script client:load>
+  const btn = document.getElementById("backToTop");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      btn.classList.remove("opacity-0", "pointer-events-none");
+      btn.classList.add("opacity-100");
+    } else {
+      btn.classList.add("opacity-0", "pointer-events-none");
+      btn.classList.remove("opacity-100");
+    }
+  });
+
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>

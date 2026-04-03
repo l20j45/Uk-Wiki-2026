@@ -4,8 +4,8 @@ interface Event {
   id: number;
   title: string;
   description: string | null;
-  eventDate: string;
-  eventTime: string;
+  eventDate: string | null;
+  eventTime: string | null;
   location: string | null;
   icon: string | null;
 }

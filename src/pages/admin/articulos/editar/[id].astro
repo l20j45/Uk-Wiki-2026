@@ -1,0 +1,56 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import { db } from "../../../../db/db";
+import { articles } from "../../../../db/schema";
+import { eq } from "drizzle-orm";
+import WikiEditor from "../../../../components/WikiEditor";
+
+const { id } = Astro.params;
+const wikiId = parseInt(id || "");
+
+if (isNaN(wikiId)) return Astro.redirect("/admin");
+
+const articleData = await db.query.articles.findFirst({
+  where: eq(articles.id, wikiId),
+});
+
+if (!articleData) return Astro.redirect("/admin?error=article_not_found");
+
+let message = "";
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const title = formData.get("title")?.toString();
+  const description = formData.get("description")?.toString();
+  const pubDate = formData.get("pubDate")?.toString();
+  const category = formData.get("category")?.toString() as "admin" | "user";
+  const importance = formData.get("importance")?.toString();
+  const image = formData.get("image")?.toString();
+  const isUrgent = formData.get("isUrgent")?.toString();  
+
+
+  try {
+    await db
+      .update(articles)
+      .set({ title, description, pubDate, category, importance: parseInt(importance || "1"), image, isUrgent: parseInt(isUrgent || "0") })
+      .where(eq(articles.id, wikiId));
+
+    return Astro.redirect("/admin?success=user_updated");
+  } catch (e) {
+    message = "Error al actualizar los datos en la base de datos.";
+  }
+}
+---
+
+<Layout title="Nueva Wiki | Admin">
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <header class="mb-10">
+      <a href="/admin" class="text-[10px] font-black uppercase text-indigo-600 tracking-widest mb-4 block">← Panel</a>
+      <h1 class="text-3xl font-black text-slate-900 leading-tight">Redactar Guía de Viaje</h1>
+    </header>
+
+    <form method="POST">
+      <WikiEditor client:only="react" initialData={articleData} />
+    </form>
+  </main>
+</Layout>

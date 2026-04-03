@@ -1,17 +1,23 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { db } from "../../db/db";
-import { users, itinerary } from "../../db/schema";
+import { users, itinerary, articles } from "../../db/schema";
 import { desc, asc } from "drizzle-orm";
 import EventAdminTable from "../../components/EventAdminTable";
 import UserAdminTable from "../../components/UserAdminTable";
+import ArticlesAdminTable from "../../components/ArticlesAdminTable";
+import BackToTop from "../../components/BackToTop.astro";
 
 const totalEvents = await db
   .select()
   .from(itinerary)
   .orderBy(asc(itinerary.eventDate));
 
-// 3. Obtener últimos usuarios registrados
+const totalArticles = await db
+  .select()
+  .from(articles)
+  .orderBy(asc(articles.id));
+
 const recentUsers = await db.query.users.findMany({
   orderBy: [desc(users.id)],
 });
@@ -24,8 +30,13 @@ const tableUser = recentUsers.map((u) => ({
   image: u.avatarUrl,
 }));
 
-
-console.log("🚀 ~ tableUser:", tableUser)
+const tableArticles = totalArticles.map((a) => ({
+  id: a.id,
+  title: a.title,
+  description: a.description,
+  category: a.category,
+  urgency: a.isUrgent,
+}));
 
 ---
 
@@ -53,32 +64,45 @@ console.log("🚀 ~ tableUser:", tableUser)
       <div
         class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
       >
-        <p
-          class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-        >
-          Alumnos
-        </p>
-        <h2 class="text-4xl font-black text-slate-900">{recentUsers.length}</h2>
+        <a href="#usuarios">
+          <p
+            class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+          >
+            Alumnos
+          </p>
+
+          <h2 class="text-4xl font-black text-slate-900">
+            {recentUsers.length}
+          </h2>
+        </a>
       </div>
       <div
         class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
       >
-        <p
-          class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-        >
-          Eventos UK
-        </p>
-        <h2 class="text-4xl font-black text-slate-900">{totalEvents.length}</h2>
+        <a href="#eventos">
+          <p
+            class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+          >
+            Eventos UK
+          </p>
+          <h2 class="text-4xl font-black text-slate-900">
+            {totalEvents.length}
+          </h2>
+        </a>
       </div>
       <div
-        class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-indigo-100"
+        class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
       >
-        <p
-          class="text-[10px] font-black uppercase text-indigo-200 tracking-widest mb-1"
-        >
-          Status Sistema
-        </p>
-        <h2 class="text-2xl font-black italic">Operativo</h2>
+        <a href="#articulos">
+          <p
+            class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+          >
+            Wiki Publicadas
+          </p>
+          <h2 class="text-4xl font-black text-slate-900">
+            {totalArticles.length}
+          </h2>
+        </a>
       </div>
     </div>
 
@@ -112,14 +136,14 @@ console.log("🚀 ~ tableUser:", tableUser)
           >
         </a>
         <a
-          href="/admin/notificaciones"
+          href="/admin/articulos/nuevo"
           class="p-6 bg-white border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-3 hover:border-amber-400 hover:bg-amber-50 transition-all group"
         >
           <span class="text-2xl group-hover:scale-110 transition-transform"
             >🔔</span
           >
           <span class="text-[10px] font-black uppercase text-slate-600"
-            >Aviso Global</span
+            >Wiki</span
           >
         </a>
         <button
@@ -139,96 +163,16 @@ console.log("🚀 ~ tableUser:", tableUser)
     <section
       class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden"
     >
-
-
-      <!-- <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50">
-              <th
-                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
-                >Usuario</th
-              >
-              <th
-                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
-                >Rol</th
-              >
-              <th
-                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter"
-                >QR Status</th
-              >
-              <th
-                class="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right"
-                >Acciones</th
-              >
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-50">
-            {
-              recentUsers.map((u) => (
-                <tr class="hover:bg-slate-50/50 transition-colors">
-                  <td class="p-6">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-sm font-bold text-indigo-600 overflow-hidden">
-                        {u.avatarUrl ? (
-                          <img
-                            src={u.avatarUrl}
-                            class="w-full h-full object-cover"
-                          />
-                        ) : (
-                          u.username[0].toUpperCase()
-                        )}
-                      </div>
-                      <div>
-                        <p class="text-sm font-bold text-slate-800">
-                          {u.fullName || u.username}
-                        </p>
-                        <p class="text-[10px] text-slate-400">@{u.username}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="p-6">
-                    <span
-                      class={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${u.role === "admin" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-500"}`}
-                    >
-                      {u.role}
-                    </span>
-                  </td>
-                  <td class="p-6">
-                    <div class="flex items-center gap-2">
-                      <div
-                        class={`w-2 h-2 rounded-full ${u.qrUrl ? "bg-emerald-500" : "bg-rose-500"}`}
-                      />
-                      <span class="text-xs font-medium text-slate-600">
-                        {u.qrUrl ? "Generado" : "Pendiente"}
-                      </span>
-                    </div>
-                  </td>
-                  <td class="p-6 text-right">
-                    <div class="flex justify-end gap-2">
-                      <a
-                        href={`/admin/usuarios/editar/${u.id}`}
-                        class="p-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-200 transition-all"
-                        title="Editar"
-                      >
-                        ✏️
-                      </a>
-                      <button
-                        class="p-2 hover:bg-rose-50 rounded-lg transition-all"
-                        title="Eliminar"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div> -->
-      <UserAdminTable client:load initialUsers={tableUser} />|
-      <EventAdminTable client:load initialEvents={totalEvents} />
+      <div id="usuarios">
+        <UserAdminTable client:load initialUsers={tableUser} />|
+      </div>
+      <div id="eventos">
+        <EventAdminTable client:load initialEvents={totalEvents} />
+      </div>
+      <div id="articulos">
+        <ArticlesAdminTable client:load initialArticles={totalArticles} />
+      </div>
     </section>
+    
   </main>
-</Layout>dev
+</Layout>
