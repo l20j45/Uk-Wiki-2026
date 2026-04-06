@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 type SearchWikiProps = {
   posts: any[];
-  [key: string]: any; // permite client:load u otros
+  [key: string]: any; 
 };
 
 export default function SearchWiki({ posts }: SearchWikiProps) {

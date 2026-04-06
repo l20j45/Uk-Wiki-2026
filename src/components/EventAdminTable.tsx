@@ -120,7 +120,6 @@ export default function EventAdminTable({ initialEvents=[] }: Props) {
                       <button 
                         className="p-2 hover:bg-rose-50 rounded-lg text-rose-500 transition-all"
                                                 onClick={() => handleDelete(event.id, event.title)}
-                        className="p-2 hover:bg-rose-50 rounded-lg text-rose-500 transition-all"
                       >
                         🗑️
                       </button>

@@ -5,19 +5,16 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 
-
 import netlify from "@astrojs/netlify";
+
+import { visualizer } from 'rollup-plugin-visualizer';
 
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
+  output: "server",
 
-  integrations: [
-    react(),
-    sitemap(),
-    
-  ],
+  integrations: [react(), sitemap()],
 
   vite: {
     build: {
@@ -25,17 +22,20 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('node_modules')) {
-              return 'vendor';
+            if (id.includes("node_modules")) {
+              return "vendor";
             }
-          }
-        }
-      }
+          },
+        },
+      },
     },
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), visualizer()],
+    ssr: {
+      external: ["cloudinary"],
+    },
   },
 
   adapter: netlify({
-    edgeMiddleware: true 
+    edgeMiddleware: false,
   }),
 });

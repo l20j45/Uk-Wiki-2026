@@ -130,7 +130,7 @@ const userData = await db.query.users.findFirst({
       </section>
 
       <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-         <SocialFields client:load initialSocials={userData?.socials?.map((s: any) => ({ platform: s.platform, url: s.url })) || []} />
+         <SocialFields client:visible initialSocials={userData?.socials?.map((s: any) => ({ platform: s.platform, url: s.url })) || []} />
       </section>
 
       <button type="submit" class="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
