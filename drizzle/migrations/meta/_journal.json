@@ -78,6 +78,20 @@
       "when": 1775162558198,
       "tag": "0010_heavy_jane_foster",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1775501778214,
+      "tag": "0011_lyrical_randall",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1775503488551,
+      "tag": "0012_silly_triathlon",
+      "breakpoints": true
     }
   ]
 }

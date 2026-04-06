@@ -1,0 +1,2 @@
+ALTER TABLE `notices` ALTER COLUMN "created_at" TO "created_at" integer DEFAULT '"2026-04-06T18:56:18.201Z"';--> statement-breakpoint
+ALTER TABLE `itinerary` ADD `only_admins` integer DEFAULT 0 NOT NULL;

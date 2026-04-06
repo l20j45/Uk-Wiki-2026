@@ -7,15 +7,13 @@ import sitemap from "@astrojs/sitemap";
 
 import netlify from "@astrojs/netlify";
 
-import { visualizer } from 'rollup-plugin-visualizer';
-
 
 // https://astro.build/config
 export default defineConfig({
   output: "server",
 
   integrations: [react(), sitemap()],
-
+  site: "https://uk2026gdl.netlify.app/",
   vite: {
     build: {
       // Optimización de chunks para que el JS de React no pese tanto
@@ -29,7 +27,7 @@ export default defineConfig({
         },
       },
     },
-    plugins: [tailwindcss(), visualizer()],
+    plugins: [tailwindcss()],
     ssr: {
       external: ["cloudinary"],
     },

@@ -8,7 +8,7 @@ export const POST: APIRoute = async ({ locals, redirect }) => {
   const user = locals.user;
   if (!user) return new Response("No autorizado", { status: 401 });
 
-  const profileUrl = `https://tu-wiki-uk-2026.netlify.app/user/${user.username}`;
+  const profileUrl = `https://uk2026gdl.netlify.app/user/${user.username}`;
   const qrSource = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(profileUrl)}`;
 
   try {

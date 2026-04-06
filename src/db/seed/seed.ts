@@ -16,57 +16,300 @@ async function seed() {
 
   // 2. Preparar Bcrypt
   const salt = await bcrypt.genSalt(10);
-  const hashedPw = await bcrypt.hash("123", salt);
+  const hashedPw = await bcrypt.hash("n$cpF#6M02%Xq$", salt);
+  const hashedPw2 = await bcrypt.hash("123456", salt);
 
   // 3. Inserción de Usuarios
   console.log("👤 Insertando usuarios...");
-  const insertedUsers = await db.insert(users).values([
-    { 
-      username: "l20j45", 
-      password: hashedPw, 
-      fullName: "daniel Rojas", 
-      phone: "555-0101", 
-      email: "daniel.rojas.artiaga@gmail.com", 
-      role: "COORDINADOR", 
-      isAdmin: 1,
-      bio: "Coordinador de tecnología con 10 años de experiencia."
-    },
-    { 
-      username: "mgarcia", 
-      password: hashedPw, 
-      fullName: "Maria Garcia", 
-      phone: "555-0103", 
-      email: "m.garcia@gmail.com", 
-      role: "PROFESOR", 
-      isAdmin: 0,
-      bio: "Profesora de desarrollo web y bases de datos."
-    },
-    { 
-      username: "student_test", 
-      password: hashedPw, 
-      fullName: "Estudiante de Prueba", 
-      phone: "555-9999", 
-      email: "alumno@escuela.com", 
-      role: "ALUMNO", 
-      isAdmin: 0 
-    },
-  ]).returning({ id: users.id }); // Obtenemos los IDs para las relaciones
-
-  // 4. Inserción de Redes Sociales (usando los IDs generados)
-  console.log("🔗 Insertando perfiles sociales...");
-  if (insertedUsers.length > 0) {
-    await db.insert(socialProfiles).values([
-      { userId: insertedUsers[0].id, platform: "GitHub", url: "https://github.com/jdoe" },
-      { userId: insertedUsers[0].id, platform: "LinkedIn", url: "https://linkedin.com/in/jdoe" },
-      { userId: insertedUsers[1].id, platform: "Twitter", url: "https://twitter.com/mgarcia" },
-    ]);
-  }
+  const insertedUsers = await db
+    .insert(users)
+    .values([
+      {
+        username: "l20j45",
+        password: hashedPw,
+        fullName: "daniel Rojas",
+        phone: "3318231058",
+        email: "daniel.rojas.artiaga@gmail.com",
+        role: "ADMIN",
+        isAdmin: 1,
+        bio: "Profesor adjunto, y entusiasta del codigo libre, y muchas cosas",
+      },
+      {
+        username: "alumnoTest",
+        password: hashedPw2,
+        fullName: "alumnoTest",
+        phone: "alumnoTest",
+        email: "m.garcia@gmail.com",
+        role: "ALUMNO",
+        isAdmin: 0,
+        bio: "Alumno test.",
+      },
+    ])
+    .returning({ id: users.id }); // Obtenemos los IDs para las relaciones
 
   // 5. Inserción de Itinerarios
   console.log("📅 Insertando itinerarios...");
   await db.insert(itinerary).values([
-    { eventDate: "2026-06-24", eventTime: "09:00", title: "Bienvenida", description: "Inicio del ciclo escolar", icon: "🚀" },
-    { eventDate: "2026-06-25", eventTime: "11:00", title: "Taller Drizzle", description: "Configuración de ORM en Node", icon: "🛠️" },
+    {
+      eventDate: "2026-06-28",
+      eventTime: "00:00",
+      finishTime: "23:59",
+      title: "Instalacion de residencia en londres",
+      description: "Llegada a lon res y asignacion de habitacion",
+      icon: "🏠",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-06-29",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Bienvenida",
+      description: "Inicio de curso en Londres",
+      icon: "💻",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-06-29",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Big Ben",
+      description: "Visita al famoso reloj de Londres",
+      icon: "⏰",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-06-30",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-06-30",
+      eventTime: "12:00",
+      finishTime: "21:00",
+      title: "London Eye British Museum",
+      description: "Visita a la famosa rueda de Londres",
+      icon: "🌉",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-01",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-01",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Hyde Park. Piccadicilly Circus",
+      description: "pending",
+      icon: "🎪",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-02",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-02",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "London Bridge",
+      description: "pending",
+      icon: "🌉",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-03",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-03",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Museo 9 3/4 harry Potter",
+      description: "pending",
+      icon: "🎪",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-04",
+      eventTime: "08:00",
+      finishTime: "21:00",
+      title: "Edimburgo",
+      description: "Dias libres propuestos para visitar la ciudad de Edimburgo",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-05",
+      eventTime: "08:00",
+      finishTime: "21:00",
+      title: "Brujas, Belgica",
+      description: "Dias libres propuestos para visitar la ciudad de Brujas",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-06",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-06",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Greenwich",
+      description: "pending",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-07",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-07",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Buckingham Palace",
+      description: "pending",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-08",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+        {
+      eventDate: "2026-07-08",
+      eventTime: "12:00",
+      finishTime: "13:00",
+      title: "Conferencia",
+      description: "Conferencia",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-08",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "Trinity College Cambridge",
+      description: "pending",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-09",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-09",
+      eventTime: "13:00",
+      finishTime: "21:00",
+      title: "South Kensington",
+      description: "pending",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-10",
+      eventTime: "08:00",
+      finishTime: "12:00",
+      title: "Curso",
+      description: "Curso de project manager con IA",
+      icon: "🤖",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-10",
+      eventTime: "12:00",
+      finishTime: "13:00",
+      title: "Finalizacion del curso",
+      description: "pending",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-11",
+      eventTime: "08:00",
+      finishTime: "21:00",
+      title: "Paris",
+      description: "Torre Eiffel, Trocadero, Arco del Triunfo",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    },
+    {
+      eventDate: "2026-07-12",
+      eventTime: "08:00",
+      finishTime: "21:00",
+      title: "Paris",
+      description: "Notre Dame, Museo del Louvre, Campos eliseos, Sacre Coeur",
+      icon: "🛠️",
+      location: "pending",
+      onlyAdmins: 0,
+    }
   ]);
 
   // 6. Inserción de Artículos
@@ -95,9 +338,21 @@ async function seed() {
   // 7. Inserción de Avisos (Notices)
   console.log("🔔 Insertando avisos...");
   await db.insert(notices).values([
-    { title: "Mantenimiento de Servidor", content: "El sistema estará fuera de línea este domingo.", priority: "high" },
-    { title: "Nuevas Credenciales", content: "Ya pueden pasar por sus fotos para la credencial.", priority: "medium" },
-    { title: "Club de Ajedrez", content: "Inscripciones abiertas en el patio central.", priority: "low" },
+    {
+      title: "Mantenimiento de Servidor",
+      content: "El sistema estará fuera de línea este domingo.",
+      priority: "high",
+    },
+    {
+      title: "Nuevas Credenciales",
+      content: "Ya pueden pasar por sus fotos para la credencial.",
+      priority: "medium",
+    },
+    {
+      title: "Club de Ajedrez",
+      content: "Inscripciones abiertas en el patio central.",
+      priority: "low",
+    },
   ]);
 
   console.log("✅ Seeding completado exitosamente.");

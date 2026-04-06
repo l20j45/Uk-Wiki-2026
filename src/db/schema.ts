@@ -5,11 +5,13 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 export const itinerary = sqliteTable("itinerary", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   eventDate: text("event_date").notNull(),
-  eventTime: text("event_time"),
+  eventTime: text("event_time").notNull(),
+  finishTime: text("finished"),
   title: text("title").notNull(),
   description: text("description"),
   icon: text("icon").default("📍"),
   location: text("location"),
+  onlyAdmins: integer("only_admins").default(0).notNull()
 });
 
 export const users = sqliteTable("users", {
