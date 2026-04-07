@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@astrojs/netlify": "^7.0.5",
-    "@astrojs/react": "^5.0.2",
+    "@astrojs/react": "^5.0.3",
     "@astrojs/sitemap": "^3.7.2",
     "@libsql/client": "^0.17.2",
     "@tailwindcss/vite": "^4.2.2",
@@ -26,13 +26,11 @@
     "@uiw/react-md-editor": "^4.1.0",
     "astro": "^6.1.1",
     "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.7.0",
     "marked": "^17.0.5",
     "mysql2": "^3.20.0",
-    "papaparse": "^5.5.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sonner": "^2.0.7",
@@ -40,10 +38,8 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "@types/bcrypt": "^6.0.0",
     "dotenv": "^17.4.1",
     "drizzle-kit": "^0.31.10",
-    "rollup-plugin-visualizer": "^7.0.1",
     "tsx": "^4.21.0"
   }
 }

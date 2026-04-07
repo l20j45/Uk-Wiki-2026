@@ -2,6 +2,7 @@
 import Layout from "../../../layouts/Layout.astro";
 import { db } from "../../../db/db";
 import { users } from "../../../db/schema";
+import bcrypt from "bcrypt";
 
 let errorMessage = "";
 let debugError = "";
@@ -9,30 +10,36 @@ let debugError = "";
 if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
-    const data = {
-      username: formData.get("username")?.toString().toLowerCase(),
-      password: formData.get("password")?.toString(),
-      fullName: formData.get("fullName")?.toString(),
-      role: formData.get("role")?.toString() || "user",
-    };
 
-    // LOG DE CONTROL: Mira tu terminal cuando des clic
-    console.log("Intentando insertar:", data);
+    const username = formData.get("username")?.toString().toLowerCase();
+    const password = formData.get("password")?.toString();
+    const fullName = formData.get("fullName")?.toString();
+    const role = formData.get("role")?.toString() || "user";
 
-    if (!data.username || !data.password) {
+    if (!username || !password) {
       throw new Error("Usuario y contraseña son obligatorios");
     }
 
-    const result = await db.insert(users).values(data).returning();
-    
+    // 🔐 Hashear contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await db.insert(users).values({
+      username,
+      password: hashedPassword,
+      fullName,
+      role,
+    }).returning();
+
     console.log("Inserción exitosa:", result);
     return Astro.redirect("/admin?success=true");
 
   } catch (e) {
     console.error("ERROR EN POST:", e);
     debugError = e instanceof Error ? e.message : "Error desconocido";
+    errorMessage = "No se pudo crear el usuario. Revisa los datos.";
   }
 }
+
 ---
 
 <Layout title="Nuevo Usuario | Admin">

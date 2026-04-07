@@ -26,3 +26,6 @@ pnpm-debug.log*
 # Local Netlify folder
 .netlify
 /src/extras/
+/src/db/uk2026.db
+script.sh
+clean-project.ps1

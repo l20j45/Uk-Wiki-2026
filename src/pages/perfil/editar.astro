@@ -5,6 +5,7 @@ import { socialProfiles, users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import SocialFields from "../../components/SocialFields";
 import { v2 as cloudinary } from "cloudinary";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 
 cloudinary.config({
   cloud_name: import.meta.env.CLOUDINARY_CLOUD_NAME,
@@ -80,6 +81,10 @@ const userData = await db.query.users.findFirst({
       <h1 class="text-xl font-black uppercase tracking-widest text-slate-900">Configurar Perfil</h1>
       <div class="w-6"></div>
     </header>
+
+    <div>
+      <ChangePasswordModal client:load />
+    </div>
 
     <form method="POST" enctype="multipart/form-data" class="space-y-8">
       
