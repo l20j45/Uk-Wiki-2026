@@ -9,6 +9,7 @@ import "../styles/global.css";
 
 const hasSession = Astro.cookies.has("user_session");
 const user = Astro.locals.user;
+import { pwaInfo } from 'virtual:pwa-info';
 ---
 
 <!doctype html>
@@ -19,6 +20,28 @@ const user = Astro.locals.user;
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
     <title>{title}</title>
+<meta name="theme-color" content="#4f46e5" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+  {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+  
+<script>
+  // Importamos la función que registra el Service Worker
+  import { registerSW } from 'virtual:pwa-register';
+
+  // Ejecutamos el registro
+  const updateSW = registerSW({
+    immediate: true,
+    onRegisteredSW(swScriptUrl) {
+      // AQUÍ es donde aparece: es un string que devuelve el navegador
+      console.log('¡Wiki lista para usar offline!');
+      console.log('Ruta del Service Worker:', swScriptUrl);
+    },
+    onRegisterError(error) {
+      console.error('Error al registrar el SW:', error);
+    }
+  });
+</script>
+
   </head>
   <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased">
     <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 py-3">
@@ -102,5 +125,16 @@ const user = Astro.locals.user;
         mobileMenu?.classList.toggle('hidden');
       });
     </script>
+    <script>
+  if (typeof navigator.serviceWorker !== 'undefined') {
+    navigator.serviceWorker.register('pwabuilder-sw.js')
+      .then(registration => {
+        console.log('Service Worker registrado con éxito:', registration);
+      })
+      .catch(error => {
+        console.error('Error al registrar el Service Worker:', error);
+      });
+  }
+</script>
   </body>
 </html>

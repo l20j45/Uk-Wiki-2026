@@ -1,0 +1,41 @@
+{
+  "background_color": "#161414",
+  "dir": "auto",
+  "display": "standalone",
+  "name": "uk2026gdl",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "uk2026gdl.netlify",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://uk2026gdl.netlify.app/icon.svg",
+      "type": "image/svg+xml",
+      "isSquare": false,
+      "isPng": false,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 0,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    },
+    {
+      "src": "https://uk2026gdl.netlify.app/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "32x32",
+      "isSquare": true,
+      "isPng": false,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 32,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ],
+  "id": "uk2026gdl",
+  "description": "This is a test",
+  "lang": "es"
+}
