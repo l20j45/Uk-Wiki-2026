@@ -1,3 +1,4 @@
+import type { number } from "astro:schema";
 import { relations } from "drizzle-orm/relations";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
@@ -26,7 +27,7 @@ export const users = sqliteTable("users", {
   bio: text("bio"),
   bloodType: text("blood_type"), // Ej: A+
   allergies: text("allergies"),
-  emergencyContact: text("emergency_contact"),
+  extraInfo: text("extra_info"),
   avatarUrl: text("avatar_url").default("/img/default-avatar.png"),
   qrUrl: text("qr_url"),
 });
@@ -44,7 +45,6 @@ export const articles = sqliteTable("articles", {
   isUrgent: integer("is_urgent").default(0).notNull(),
 });
 
-// Redes Sociales (1:N)
 export const socialProfiles = sqliteTable("social_profiles", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id")
@@ -54,7 +54,16 @@ export const socialProfiles = sqliteTable("social_profiles", {
   url: text("url").notNull(),
 });
 
-// Cola de Avisos
+export const emergencyContacts = sqliteTable("emergency_contacts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  number: text("number").notNull(),
+});
+
+
 export const notices = sqliteTable("notices", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
@@ -63,16 +72,24 @@ export const notices = sqliteTable("notices", {
   createdAt: integer("created_at", { mode: "timestamp" }).default(new Date()),
 });
 
-// 3. DEFINIR LAS RELACIONES (Esto soluciona tu error)
+
 export const usersRelations = relations(users, ({ many }) => ({
-  socials: many(socialProfiles), // Esto le dice a Drizzle que "socials" existe
+  socials: many(socialProfiles),
+  emergencyContacts: many(emergencyContacts),
 }));
+
 
 export const socialProfilesRelations = relations(socialProfiles, ({ one }) => ({
   author: one(users, {
     fields: [socialProfiles.userId],
     references: [users.id],
-  })
+  }),
+}));
 
 
+export const emergencyContactsRelations = relations(emergencyContacts, ({ one }) => ({
+  author: one(users, {
+    fields: [emergencyContacts.userId],
+    references: [users.id],
+  }),
 }));

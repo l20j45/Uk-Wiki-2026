@@ -14,7 +14,7 @@ if (Astro.request.method === "POST") {
     const username = formData.get("username")?.toString().toLowerCase();
     const password = formData.get("password")?.toString();
     const fullName = formData.get("fullName")?.toString();
-    const role = formData.get("role")?.toString() || "user";
+    const role = formData.get("role")?.toString() || "ALUMNO";
 
     if (!username || !password) {
       throw new Error("Usuario y contraseña son obligatorios");
@@ -28,9 +28,10 @@ if (Astro.request.method === "POST") {
       password: hashedPassword,
       fullName,
       role,
+      isAdmin: role === "admin" ? true : false,
     }).returning();
 
-    console.log("Inserción exitosa:", result);
+    console.log("Insersión exitosa:", result);
     return Astro.redirect("/admin?success=true");
 
   } catch (e) {
@@ -102,7 +103,7 @@ if (Astro.request.method === "POST") {
           <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Rol en el Sistema</label>
           <div class="grid grid-cols-2 gap-3">
             <label class="cursor-pointer">
-              <input type="radio" name="role" value="user" checked class="peer hidden" />
+              <input type="radio" name="role" value="alumno" checked class="peer hidden" />
               <div class="p-4 text-center rounded-2xl border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 transition-all">
                 <span class="block text-xl mb-1">🎓</span>
                 <span class="text-[10px] font-black uppercase text-slate-600">Alumno</span>

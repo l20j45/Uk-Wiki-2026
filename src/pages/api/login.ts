@@ -2,12 +2,12 @@ import type { APIRoute } from "astro";
 import { db } from "../../db/db";
 import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs"; // <--- Importamos bcrypt
+import bcrypt from "bcrypt";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const data = await request.formData();
-    const username = data.get("username")?.toString();
+    const username = data.get("username")?.toString().toLowerCase();
     const password = data.get("password")?.toString();
 
     if (!username || !password) {

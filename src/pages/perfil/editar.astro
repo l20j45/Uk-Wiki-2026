@@ -1,11 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { db } from "../../db/db";
-import { socialProfiles, users } from "../../db/schema";
+import { socialProfiles, users, emergencyContacts } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import SocialFields from "../../components/SocialFields";
 import { v2 as cloudinary } from "cloudinary";
 import ChangePasswordModal from "../../components/ChangePasswordModal";
+import ContactFields from "../../components/ContactFields";
 
 cloudinary.config({
   cloud_name: import.meta.env.CLOUDINARY_CLOUD_NAME,
@@ -18,16 +19,15 @@ if (!user) return Astro.redirect("/login");
 
 if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
-  
+
   // Extraer nuevos campos: Email y Teléfono
   const email = formData.get("email")?.toString() || "";
   const phone = formData.get("phone")?.toString() || "";
-  
   const fullName = formData.get("fullName")?.toString() || "";
   const bio = formData.get("bio")?.toString() || "";
   const bloodType = formData.get("bloodType")?.toString() || "";
   const allergies = formData.get("allergies")?.toString() || "";
-  const emergencyContact = formData.get("emergencyContact")?.toString() || "";
+  const extraInfo = formData.get("extraInfo")?.toString() || "";
   const avatarFile = formData.get("avatar") as File;
 
   try {
@@ -36,16 +36,28 @@ if (Astro.request.method === "POST") {
       const arrayBuffer = await avatarFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: "uk_wiki_2026", public_id: `user_${user.id}` },
-          (error, result) => { error ? reject(error) : resolve(result); }
-        ).end(buffer);
+        cloudinary.uploader
+          .upload_stream(
+            { folder: "uk_wiki_2026", public_id: `user_${user.id}` },
+            (error, result) => {
+              error ? reject(error) : resolve(result);
+            },
+          )
+          .end(buffer);
       });
       avatarUrl = (uploadResult as any).secure_url;
     }
 
     // Actualizar Usuario incluyendo Email y Teléfono
-    const userUpdate: any = { fullName, bio, bloodType, allergies, emergencyContact, email, phone };
+    const userUpdate: any = {
+      fullName,
+      bio,
+      bloodType,
+      allergies,
+      extraInfo,
+      email,
+      phone,
+    };
     if (avatarUrl) userUpdate.avatarUrl = avatarUrl;
 
     await db.update(users).set(userUpdate).where(eq(users.id, user.id));
@@ -53,13 +65,26 @@ if (Astro.request.method === "POST") {
     // Redes Sociales (mismo proceso anterior)
     const platforms = formData.getAll("socialPlatform[]");
     const urls = formData.getAll("socialUrl[]");
+    const emergencyContactName = formData.getAll("emergencyContactName[]");
+    const emergencyContactNumber = formData.getAll("emergencyContactNumber[]");
     await db.delete(socialProfiles).where(eq(socialProfiles.userId, user.id));
-    const socialEntries = platforms.map((p, i) => ({
+    await db.delete(emergencyContacts).where(eq(emergencyContacts.userId, user.id));
+    const socialEntries = platforms
+      .map((p, i) => ({
+        userId: user.id,
+        platform: p?.toString() || "Social",
+        url: urls[i]?.toString() || "",
+      }))
+      .filter((s) => s.url.length > 5);
+    const emergencyEntries = emergencyContactName.map((name, i) => ({
       userId: user.id,
-      platform: p?.toString() || "Social",
-      url: urls[i]?.toString() || ""
-    })).filter(s => s.url.length > 5);
-    if (socialEntries.length > 0) await db.insert(socialProfiles).values(socialEntries);
+      name: name?.toString(),
+      number: emergencyContactNumber[i]?.toString() || "",
+    }));
+    if (socialEntries.length > 0)
+      await db.insert(socialProfiles).values(socialEntries);
+    if (emergencyEntries.length > 0)                  
+      await db.insert(emergencyContacts).values(emergencyEntries);
 
     return Astro.redirect("/perfil?success=true");
   } catch (error) {
@@ -70,15 +95,21 @@ if (Astro.request.method === "POST") {
 
 const userData = await db.query.users.findFirst({
   where: eq(users.id, user.id),
-  with: { socials: true }
+  with: { socials: true , emergencyContacts: true },
 });
 ---
 
 <Layout title="Editar Perfil | UK 2026">
   <main class="max-w-2xl mx-auto px-6 py-10 pb-32 bg-white">
     <header class="flex items-center justify-between mb-8">
-      <a href="/perfil" class="text-slate-400 hover:text-indigo-600 transition-colors">← Volver</a>
-      <h1 class="text-xl font-black uppercase tracking-widest text-slate-900">Configurar Perfil</h1>
+      <a
+        href="/perfil"
+        class="text-slate-400 hover:text-indigo-600 transition-colors"
+        >← Volver</a
+      >
+      <h1 class="text-xl font-black uppercase tracking-widest text-slate-900">
+        Configurar Perfil
+      </h1>
       <div class="w-6"></div>
     </header>
 
@@ -87,61 +118,184 @@ const userData = await db.query.users.findFirst({
     </div>
 
     <form method="POST" enctype="multipart/form-data" class="space-y-8">
-      
-      <section class="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex items-center gap-4">
-        <div class="relative w-20 h-20 bg-white rounded-3xl border-4 border-white shadow-sm overflow-hidden group">
-          <input type="file" name="avatar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
-          {userData?.avatarUrl ? <img src={userData.avatarUrl} class="w-full h-full object-cover" /> : <div class="flex items-center justify-center h-full text-2xl">📸</div>}
+      <section
+        class="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 flex items-center gap-4"
+      >
+        <div
+          class="relative w-20 h-20 bg-white rounded-3xl border-4 border-white shadow-sm overflow-hidden group"
+        >
+          <input
+            type="file"
+            name="avatar"
+            accept="image/*"
+            class="absolute inset-0 opacity-0 cursor-pointer z-10"
+          />
+          {
+            userData?.avatarUrl ? (
+              <img
+                src={userData.avatarUrl}
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <div class="flex items-center justify-center h-full text-2xl">
+                📸
+              </div>
+            )
+          }
         </div>
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Toca la imagen para cambiar tu foto</p>
+        <p
+          class="text-[10px] font-bold text-slate-400 uppercase tracking-tight"
+        >
+          Toca la imagen para cambiar tu foto
+        </p>
       </section>
 
-      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
-        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Información de Contacto</h3>
+      <section
+        class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4"
+      >
+        <h3
+          class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2"
+        >
+          Información de Contacto
+        </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Email</label>
-            <input type="email" name="email" value={userData?.email} placeholder="tu@correo.com" class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" />
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              name="email"
+              value={userData?.email}
+              placeholder="tu@correo.com"
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+            />
           </div>
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">WhatsApp / Tel</label>
-            <input type="tel" name="phone" value={userData?.phone} placeholder="+52 33..." class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" />
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+              >WhatsApp / Tel</label
+            >
+            <input
+              type="tel"
+              name="phone"
+              value={userData?.phone}
+              placeholder="+52 33..."
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+            />
           </div>
         </div>
       </section>
 
-      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4">
-        <h3 class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2">Biografía Pública</h3>
+      <section
+        class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4"
+      >
+        <h3
+          class="text-[10px] font-black uppercase text-indigo-500 tracking-widest mb-2"
+        >
+          Biografía Pública
+        </h3>
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Nombre Completo</label>
-          <input type="text" name="fullName" value={userData?.fullName} class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none" required />
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+            >Nombre Completo</label
+          >
+          <input
+            type="text"
+            name="fullName"
+            value={userData?.fullName}
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
         </div>
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Bio</label>
-          <textarea name="bio" rows="3" class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none">{userData?.bio}</textarea>
+          <label
+            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2"
+            >Bio</label
+          >
+          <textarea
+            name="bio"
+            rows="3"
+            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+            >{userData?.bio}</textarea
+          >
         </div>
       </section>
 
-      <section class="bg-rose-50/30 p-8 rounded-[2.5rem] border border-rose-100 shadow-sm space-y-4">
-        <h3 class="text-[10px] font-black uppercase text-rose-500 tracking-widest mb-2">Datos Médicos (Crítico)</h3>
+      <section
+        class="bg-rose-50/30 p-8 rounded-[2.5rem] border border-rose-100 shadow-sm space-y-4"
+      >
+        <h3
+          class="text-[10px] font-black uppercase text-rose-500 tracking-widest mb-2"
+        >
+          Datos Médicos (Crítico)
+        </h3>
         <div class="grid grid-cols-2 gap-4">
-          <select name="bloodType" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none">
-             <option value="" disabled selected={!userData?.bloodType}>Sangre</option>
-             {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(t => <option value={t} selected={userData?.bloodType === t}>{t}</option>)}
+          <select
+            name="bloodType"
+            class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none"
+          >
+            <option value="" disabled selected={!userData?.bloodType}
+              >Sangre</option
+            >
+            {
+              ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((t) => (
+                <option value={t} selected={userData?.bloodType === t}>
+                  {t}
+                </option>
+              ))
+            }
           </select>
-          <input type="text" name="allergies" value={userData?.allergies} placeholder="Alergias" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none" />
+          <input
+            type="text"
+            name="allergies"
+            value={userData?.allergies}
+            placeholder="Alergias"
+            class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none"
+          />
         </div>
-        <input type="text" name="emergencyContact" value={userData?.emergencyContact} placeholder="Contacto de emergencia (Nombre y Tel)" class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none" />
+        <input
+          type="text"
+          name="extraInfo"
+          value={userData?.extraInfo}
+          placeholder="Información Extra"
+          class="w-full p-4 bg-white rounded-2xl border-none ring-1 ring-rose-100 outline-none"
+        />
       </section>
 
-      <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-         <SocialFields client:visible initialSocials={userData?.socials?.map((s: any) => ({ platform: s.platform, url: s.url })) || []} />
+      <section
+        class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
+      >
+        <ContactFields
+          client:visible
+          initialEmergencyContacts={userData?.emergencyContacts?.map(
+            (ec: any) => ({
+              name: ec.name,
+              number: ec.number,
+            }),
+          ) || []}
+        />
       </section>
 
-      <button type="submit" class="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs">
+      <section
+        class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
+      >
+        <SocialFields
+          client:visible
+          initialSocials={userData?.socials?.map((s: any) => ({
+            platform: s.platform,
+            url: s.url,
+          })) || []}
+        />
+      </section>
+
+      <button
+        type="submit"
+        class="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-xs"
+      >
         Actualizar Perfil Completo
       </button>
-
     </form>
   </main>
 </Layout>

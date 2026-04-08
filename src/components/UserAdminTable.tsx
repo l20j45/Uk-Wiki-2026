@@ -78,10 +78,10 @@ export default function EventAdminTable({ initialUsers = [] }: Props) {
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
                 Usuario
               </th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter hidden md:table-cell ">
                 Rol
               </th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter hidden md:table-cell ">
                 QR
               </th>
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right">
@@ -95,7 +95,7 @@ export default function EventAdminTable({ initialUsers = [] }: Props) {
               filteredEvents.map((event) => (
                 <tr
                   key={event.id}
-                  className="hover:bg-slate-50/30 transition-colors group"
+                  className="hover:bg-slate-50/30 transition-colors group border-b border-slate-900"
                 >
                   <td className="p-6">
                     <div className="flex items-center gap-4">
@@ -123,13 +123,13 @@ export default function EventAdminTable({ initialUsers = [] }: Props) {
                     </div>
                   </td>
 
-                  <td className="p-6">
+                  <td className="hidden md:table-cell p-6">
                     <span className="text-xs font-black text-indigo-600">
                       {event.role}
                     </span>
                   </td>
 
-                  <td className="p-6">
+                  <td className="hidden md:table-cell p-6">
                     <div
                       className={`w-30 h-30 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tight ${
                         event.qrUrl === "validado"
@@ -161,7 +161,7 @@ export default function EventAdminTable({ initialUsers = [] }: Props) {
                   </td>
 
                   <td className="p-6 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 opacity-100 md:opacity-20 md:group-hover:opacity-100 transition-opacity">
                       <a
                         href={`/admin/usuarios/editar/${event.id}`}
                         className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-200 transition-all"

@@ -9,7 +9,7 @@ const { username } = Astro.params;
 // Buscamos al usuario por su username
 const person = await db.query.users.findFirst({
   where: eq(users.username, username || ""),
-  with: { socials: true },
+  with: { socials: true, emergencyContacts: true },
 });
 
 if (!person) return Astro.redirect("/404");
@@ -72,15 +72,34 @@ const initials = person.fullName
           </div>
         </div>
 
+                <div
+          class="bg-amber-50 dark:bg-amber-950/30 p-5 rounded-2xl border border-amber-100 dark:border-amber-900/30"
+        >
+          <p class="text-[9px] font-black uppercase text-amber-600 mb-1">
+            Informacion Extra
+          </p>
+          <p class="font-black text-slate-800 dark:text-amber-200">
+            {person.extraInfo || "No registrada"}
+          </p>
+        </div>
         <div
           class="bg-amber-50 dark:bg-amber-950/30 p-5 rounded-2xl border border-amber-100 dark:border-amber-900/30"
         >
           <p class="text-[9px] font-black uppercase text-amber-600 mb-1">
             Contacto de Emergencia
           </p>
-          <p class="font-black text-slate-800 dark:text-amber-200">
-            {person.emergencyContact || "No registrado"}
-          </p>
+          <div class="flex flex-wrap justify-center gap-2">
+            {
+              person.emergencyContacts.map((ec) => (
+                <a
+                  href={`tel:${ec.number}`}
+                  class="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold hover:bg-indigo-500 hover:text-white transition-all"
+                >
+                  {ec.name}
+                </a>
+              ))
+            }
+          </div>
         </div>
 
         <div>

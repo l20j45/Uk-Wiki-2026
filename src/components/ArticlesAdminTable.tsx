@@ -73,16 +73,16 @@ export default function ArticlesAdminTable({ initialArticles = [] }: Props) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter ">
                 titulo
               </th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter  hidden md:table-cell">
                 descripcion
               </th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter  hidden md:table-cell">
                 categoria
               </th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter  hidden md:table-cell">
                 urgencia
               </th>
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right">
@@ -105,14 +105,14 @@ export default function ArticlesAdminTable({ initialArticles = [] }: Props) {
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td className="hidden md:table-cell">
                     <div>
                       <p className="text-sm font-bold text-slate-800">
                         {article.description || "Sin descripcion"}
                       </p>
                     </div>
                   </td>
-                  <td>
+                  <td className="hidden md:table-cell">
                     <div
                       className={`w-20 h-10 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tight ${
                         article.category === "logistica"
@@ -129,7 +129,7 @@ export default function ArticlesAdminTable({ initialArticles = [] }: Props) {
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td className="hidden md:table-cell">
                     <div>
                       <div
                         className={`w-20 h-10 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tight ${
@@ -146,7 +146,7 @@ export default function ArticlesAdminTable({ initialArticles = [] }: Props) {
                   </td>
 
                   <td className="p-6 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 md:opacity-20 md:group-hover:opacity-100 transition-opacity">
                       <a
                         href={`/admin/articulos/editar/${article.id}`}
                         className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-200 transition-all"

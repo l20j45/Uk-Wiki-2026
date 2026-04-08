@@ -3,6 +3,7 @@ import Layout from "../../../../layouts/Layout.astro";
 import { db } from "../../../../db/db";
 import { users } from "../../../../db/schema";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 const { id } = Astro.params;
 const userId = parseInt(id || "");
@@ -24,13 +25,20 @@ if (Astro.request.method === "POST") {
   const email = formData.get("email")?.toString();
   const phone = formData.get("phone")?.toString();
   const role = formData.get("role")?.toString() as "admin" | "user";
+  const newPassword = formData.get("password")?.toString(); // Cambiamos el nombre para mayor claridad
   const qrUrl = formData.get("qrUrl")?.toString();
 
   try {
-    await db
-      .update(users)
-      .set({ fullName, email, phone, role, qrUrl })
-      .where(eq(users.id, userId));
+    // Creamos el objeto de actualización básico
+    const updateData: any = { fullName, email, phone, role, qrUrl };
+
+    // SOLO si se escribió algo en el campo de contraseña, la hasheamos y la agregamos
+    if (newPassword && newPassword.trim() !== "") {
+      const saltRounds = 10;
+      updateData.password = await bcrypt.hash(newPassword, saltRounds);
+    }
+
+    await db.update(users).set(updateData).where(eq(users.id, userId));
 
     return Astro.redirect("/admin?success=user_updated");
   } catch (e) {
@@ -54,7 +62,8 @@ if (Astro.request.method === "POST") {
         </h1>
         <p class="text-slate-500 mt-1 italic">
           Modificando perfil de <span class="font-bold text-slate-700"
-            >@{userData.username}</span>
+            >@{userData.username}</span
+          >
         </p>
       </div>
 
@@ -118,19 +127,36 @@ if (Astro.request.method === "POST") {
             />
           </div>
         </div>
-
-        <div>
-          <label
-            class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2 tracking-tighter"
-            >Teléfono / WhatsApp</label
-          >
-          <input
-            type="text"
-            name="phone"
-            value={userData.phone}
-            placeholder="+52..."
-            class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium"
-          />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2 tracking-tighter"
+            >
+              Reset Contraseña
+            </label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Dejar en blanco para no cambiar"
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium"
+            />
+            <p class="text-[9px] text-slate-400 mt-1 ml-2 italic">
+              * Si se deja vacío, se mantendrá la actual.
+            </p>
+          </div>
+          <div>
+            <label
+              class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2 tracking-tighter"
+              >Teléfono / WhatsApp</label
+            >
+            <input
+              type="text"
+              name="phone"
+              value={userData.phone}
+              placeholder="+52..."
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-medium"
+            />
+          </div>
         </div>
       </section>
 

@@ -73,9 +73,9 @@ export default function EventAdminTable({ initialEvents=[] }: Props) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50">
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">Actividad</th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">Horario</th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter">Ubicación</th>
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter ">Actividad</th>
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter hidden md:table-cell">Horario</th>
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter hidden md:table-cell">Ubicación</th>
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-tighter text-right">Acciones</th>
             </tr>
           </thead>
@@ -96,7 +96,7 @@ export default function EventAdminTable({ initialEvents=[] }: Props) {
                       </div>
                     </div>
                   </td>
-                  <td className="p-6">
+                  <td className="p-6 hidden md:table-cell">
                     <div className="flex flex-col">
                       <span className="text-xs font-black text-indigo-600">{event.eventDate}</span>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
@@ -104,13 +104,13 @@ export default function EventAdminTable({ initialEvents=[] }: Props) {
                       </span>
                     </div>
                   </td>
-                  <td className="p-6">
+                  <td className="p-6 hidden md:table-cell">
                     <span className="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-tight">
                       {event.location || "Londres"}
                     </span>
                   </td>
-                  <td className="p-6 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <td className="p-6 text-right ">
+                    <div className="flex justify-end gap-2 opacity-100 md:opacity-20 md:group-hover:opacity-100 transition-opacity">
                       <a 
                         href={`/admin/itinerario/editar/${event.id}`} 
                         className="p-2 hover:bg-white rounded-lg border border-transparent hover:border-slate-200 transition-all"
