@@ -22,6 +22,7 @@ export default defineConfig({
       workbox: {
         // 1. Guardar todos los archivos generados por el build
         globPatterns: ["**/*.{js,css,html,svg,png,ico,txt}"],
+        navigateFallback: "/index.html", // Esto salva la vida cuando entras a una ruta profunda sin internet
 
         // 2. Estrategias de caché dinámico
         runtimeCaching: [
@@ -49,6 +50,8 @@ export default defineConfig({
       },
       manifest: {
         name: "Inglaterra Wiki",
+        start_url: "/",
+        scope: "/",
         short_name: "UK Wiki",
         description: "Itinerario y guía de viaje a Inglaterra",
         theme_color: "#4f46e5", // El índigo de tus botones
@@ -59,27 +62,40 @@ export default defineConfig({
         categories: ["travels", "personal"],
         screenshots: [
           {
-            src: "screenshot.jpg",
+            src: "screenshot1.jpg",
+            sizes: "1280x720",
+            type: "image/jpg",
+            platform: "wide",
+          },
+                    {
+            src: "screenshot2.jpg",
+            sizes: "1280x720",
+            type: "image/jpg",
+            platform: "wide",
+          },
+                    {
+            src: "screenshot3.jpg",
             sizes: "1280x720",
             type: "image/jpg",
             platform: "wide",
           },
         ],
+        lang: "es",
         icons: [
           {
-            src: "icon.svg",
+            src: "icon192.png",
             sizes: "192x192",
-            type: "image/svg+xml",
+            type: "image/png",
+            purpose: "any",
           },
           {
-            src: "icon.svg",
+            src: "icon512.png",
             sizes: "512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
-
     }),
   ],
   site: "https://uk2026gdl.netlify.app/",

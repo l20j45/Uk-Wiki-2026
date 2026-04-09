@@ -201,6 +201,16 @@ import { Toaster } from "sonner";
       // 1. Los imports SIEMPRE arriba del todo
       import { registerSW } from "virtual:pwa-register";
       import { toast } from "sonner";
+      if (typeof navigator.serviceWorker !== "undefined") {
+        navigator.serviceWorker.register("pwabuilder-sw.js").then(
+          (registration) => {
+            console.log("Service Worker registrado con éxito:", registration);
+          },
+          (error) => {
+            console.error("Error al registrar el Service Worker:", error);
+          }
+        );
+      }
 
       // 2. Verificamos si el navegador soporta Service Workers antes de ejecutar
       if ("serviceWorker" in navigator) {
