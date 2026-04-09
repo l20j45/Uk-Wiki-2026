@@ -20,30 +20,44 @@ export default defineConfig({
       registerType: "prompt", // CAMBIO: En lugar de autoUpdate, pedimos permiso o lo manejamos silencioso
       includeAssets: ["**/*.{png,svg,jpg,ico}"], // Asegura que los iconos y assets se incluyan
       workbox: {
-        // 1. Guardar todos los archivos generados por el build
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,txt}"],
-        navigateFallback: "/index.html", // Esto salva la vida cuando entras a una ruta profunda sin internet
+        // 1. Limpieza de versiones viejas (evita el bucle de "actualizar")
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
 
-        // 2. Estrategias de caché dinámico
+        // 2. Asegura que los chunks de 'vendor' que creaste en rollup se guarden
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,txt,jpg}"],
+
+        // 3. Importante para SSR: Si una ruta no existe en caché, sirve el index
+        navigateFallback: "/",
+
         runtimeCaching: [
           {
-            // Cachear todo lo que venga de tu propio dominio
-            urlPattern: ({ url }) => url.origin === self.location.origin,
-            handler: "StaleWhileRevalidate", // Carga rápido desde caché y actualiza en background
+            // Esto capturará tus páginas de la Wiki e Itinerario
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
             options: {
-              cacheName: "full-app-cache",
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días (perfecto para tu viaje)
-              },
+              cacheName: "pages-cache",
+              networkTimeoutSeconds: 3, // Si en 3s no hay red, usa caché (ideal para Inglaterra)
+              expiration: { maxEntries: 50 },
             },
           },
           {
-            // Cachear fuentes de Google o librerías externas (si usas)
-            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            // Cache de assets con hash (los que genera Vite)
+            urlPattern: ({ request }) =>
+              request.destination === "style" ||
+              request.destination === "script" ||
+              request.destination === "worker",
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "static-resources" },
+          },
+          {
+            // Tus imágenes de Cloudinary o locales
+            urlPattern: ({ request }) => request.destination === "image",
             handler: "CacheFirst",
             options: {
-              cacheName: "google-fonts-cache",
+              cacheName: "image-cache",
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
         ],
@@ -67,13 +81,13 @@ export default defineConfig({
             type: "image/jpg",
             platform: "wide",
           },
-                    {
+          {
             src: "screenshot2.jpg",
             sizes: "1280x720",
             type: "image/jpg",
             platform: "wide",
           },
-                    {
+          {
             src: "screenshot3.jpg",
             sizes: "1280x720",
             type: "image/jpg",
