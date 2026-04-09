@@ -17,7 +17,36 @@ export default defineConfig({
     react(),
     sitemap(),
     AstroPWA({
-      registerType: "autoUpdate",
+      registerType: "prompt", // CAMBIO: En lugar de autoUpdate, pedimos permiso o lo manejamos silencioso
+      includeAssets: ["**/*.{png,svg,jpg,ico}"], // Asegura que los iconos y assets se incluyan
+      workbox: {
+        // 1. Guardar todos los archivos generados por el build
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,txt}"],
+
+        // 2. Estrategias de caché dinámico
+        runtimeCaching: [
+          {
+            // Cachear todo lo que venga de tu propio dominio
+            urlPattern: ({ url }) => url.origin === self.location.origin,
+            handler: "StaleWhileRevalidate", // Carga rápido desde caché y actualiza en background
+            options: {
+              cacheName: "full-app-cache",
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días (perfecto para tu viaje)
+              },
+            },
+          },
+          {
+            // Cachear fuentes de Google o librerías externas (si usas)
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-cache",
+            },
+          },
+        ],
+      },
       manifest: {
         name: "Inglaterra Wiki",
         short_name: "UK Wiki",
@@ -50,23 +79,7 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
-        // Cacheamos todas las rutas que empiecen por /articles o /itinerary
-        globPatterns: ["**/*.{js,css,html,svg,png,jpg}"],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/"),
-            handler: "NetworkFirst", // Intenta red, si falla usa caché (ideal para tu Wiki)
-            options: {
-              cacheName: "api-cache",
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 1 semana
-              },
-            },
-          },
-        ],
-      },
+
     }),
   ],
   site: "https://uk2026gdl.netlify.app/",
