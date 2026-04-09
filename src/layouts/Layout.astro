@@ -2,15 +2,21 @@
 interface Props {
   title: string;
 }
+
 const { title } = Astro.props;
+
+// Componentes e Imagenes
 import BackToTop from "../components/BackToTop.astro";
 import PanicButton from "../components/PanicButton.jsx";
-import "../styles/global.css";
+import { Toaster } from "sonner";
 
+// Estilos y PWA
+import "../styles/global.css";
+import { pwaInfo } from "virtual:pwa-info";
+
+// Auth
 const hasSession = Astro.cookies.has("user_session");
 const user = Astro.locals.user;
-import { pwaInfo } from "virtual:pwa-info";
-import { Toaster } from "sonner";
 ---
 
 <!doctype html>
@@ -19,6 +25,8 @@ import { Toaster } from "sonner";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
       rel="stylesheet"
@@ -26,151 +34,67 @@ import { Toaster } from "sonner";
     <title>{title}</title>
     <meta name="theme-color" content="#4f46e5" />
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
-
-    <script>
-      // Importamos la función que registra el Service Worker
-      import { registerSW } from "virtual:pwa-register";
-
-      // Ejecutamos el registro
-      const updateSW = registerSW({
-        immediate: true,
-        onRegisteredSW(swScriptUrl) {
-          // AQUÍ es donde aparece: es un string que devuelve el navegador
-          console.log("¡Wiki lista para usar offline!");
-          console.log("Ruta del Service Worker:", swScriptUrl);
-        },
-        onRegisterError(error) {
-          console.error("Error al registrar el SW:", error);
-        },
-      });
-    </script>
   </head>
-  <body
-    class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased"
-  >
-    <nav
-      class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 py-3"
-    >
+  
+  <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased">
+    <Toaster client:load richColors position="top-right" />
+
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 py-3">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
         <a href="/" class="flex items-center gap-2">
           <img src="/icon.svg" class="w-8 h-8" alt="Logo" />
-          <span
-            class="hidden sm:inline font-extrabold tracking-tight text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600"
-          >
+          <span class="hidden sm:inline font-extrabold tracking-tight text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
             UK 2026
           </span>
         </a>
 
         <div class="flex items-center gap-4">
           <div class="hidden md:flex items-center gap-6 mr-4">
-            {
-              hasSession && user ? (
-                <>
-                  <a
-                    href="/perfil/"
-                    class="text-sm font-bold text-slate-600 hover:text-indigo-600"
-                  >
-                    Mi perfil
-                  </a>
-                  <a
-                    href={`/usuario/${user.username}`}
-                    class="text-sm font-bold text-slate-600 hover:text-indigo-600"
-                  >
-                    Mi tarjeta
-                  </a>
-                  {user.isAdmin === 1 && (
-                    <a
-                      href="/admin/"
-                      class="text-sm font-bold text-slate-600 hover:text-indigo-600"
-                    >
-                      Dashboard
-                    </a>
-                  )}
-                  <a
-                    href="/api/logout"
-                    class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors"
-                  >
-                    Salir
-                  </a>
-                </>
-              ) : (
-                <a
-                  href="/login"
-                  class="px-5 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-all"
-                >
-                  Inicia Sesión
+            {hasSession && user ? (
+              <>
+                <a href="/perfil/" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Mi perfil</a>
+                <a href={`/usuario/${user.username}`} class="text-sm font-bold text-slate-600 hover:text-indigo-600">Mi tarjeta</a>
+                {user.isAdmin === 1 && (
+                  <a href="/admin/" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Dashboard</a>
+                )}
+                <a href="/api/logout" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors">
+                  Salir
                 </a>
-              )
-            }
+              </>
+            ) : (
+              <a href="/login" class="px-5 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-all">
+                Inicia Sesión
+              </a>
+            )}
           </div>
 
           <PanicButton client:visible />
 
-          <button
-            id="menu-toggle"
-            class="md:hidden p-2 text-slate-600 focus:outline-none"
-          >
-            <svg
-              id="menu-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-7 w-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16m-7 6h7"></path>
+          <button id="menu-toggle" class="md:hidden p-2 text-slate-600 focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
           </button>
         </div>
       </div>
 
-      <div
-        id="mobile-menu"
-        class="hidden md:hidden mt-4 pb-4 space-y-4 border-t border-slate-100 pt-4 text-center"
-      >
-        {
-          hasSession && user ? (
-            <div class="flex flex-col gap-4">
-              <a href="/perfil/" class="text-base font-bold text-slate-600">
-                Mi perfil
-              </a>
-              <a
-                href={`/usuario/${user.username}`}
-                class="text-base font-bold text-slate-600"
-              >
-                Mi tarjeta
-              </a>
-              {user.isAdmin === 1 && (
-                <a href="/admin/" class="text-base font-bold text-slate-600">
-                  Dashboard
-                </a>
-              )}
-              <a
-                href="/api/logout"
-                class="mx-auto w-2/3 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold"
-              >
-                Cerrar Sesión
-              </a>
-            </div>
-          ) : (
-            <a
-              href="/login"
-              class="block mx-auto w-2/3 px-4 py-2 font-bold text-white bg-green-600 rounded-full"
-            >
-              Inicia Sesión
-            </a>
-          )
-        }
+      <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 space-y-4 border-t border-slate-100 pt-4 text-center">
+        {hasSession && user ? (
+          <div class="flex flex-col gap-4">
+            <a href="/perfil/" class="text-base font-bold text-slate-600">Mi perfil</a>
+            <a href={`/usuario/${user.username}`} class="text-base font-bold text-slate-600">Mi tarjeta</a>
+            {user.isAdmin === 1 && <a href="/admin/" class="text-base font-bold text-slate-600">Dashboard</a>}
+            <a href="/api/logout" class="mx-auto w-2/3 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold">Cerrar Sesión</a>
+          </div>
+        ) : (
+          <a href="/login" class="block mx-auto w-2/3 px-4 py-2 font-bold text-white bg-green-600 rounded-full">Inicia Sesión</a>
+        )}
       </div>
     </nav>
 
     <main>
-      <Toaster client:load richColors position="top-right" />
       <slot />
     </main>
 
@@ -180,45 +104,44 @@ import { Toaster } from "sonner";
     >
       🚨
     </a>
+    
     <BackToTop />
 
-    <footer
-      class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200"
-    >
+    <footer class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200">
       <p>Curso de Verano Aplicado a IA • University of Hertfordshire</p>
       <p class="mt-1">© 2026 - Daniel Rojas</p>
     </footer>
 
     <script>
+      import { registerSW } from "virtual:pwa-register";
+      import { toast } from "sonner";
+
+      // 1. Lógica del Menú Móvil
       const menuToggle = document.getElementById("menu-toggle");
       const mobileMenu = document.getElementById("mobile-menu");
 
       menuToggle?.addEventListener("click", () => {
         mobileMenu?.classList.toggle("hidden");
       });
-    </script>
-    <script>
-      // 1. Los imports SIEMPRE arriba del todo
-      import { registerSW } from "virtual:pwa-register";
-      import { toast } from "sonner";
-      if (typeof navigator.serviceWorker !== "undefined") {
-        navigator.serviceWorker.register("pwabuilder-sw.js").then(
-          (registration) => {
-            console.log("Service Worker registrado con éxito:", registration);
-          },
-          (error) => {
-            console.error("Error al registrar el Service Worker:", error);
-          }
-        );
-      }
 
-      // 2. Verificamos si el navegador soporta Service Workers antes de ejecutar
+      // 2. Lógica del Service Worker
       if ("serviceWorker" in navigator) {
         const updateSW = registerSW({
           immediate: true,
+          onRegisteredSW(swUrl, r) {
+            console.log("Service Worker registrado:", swUrl);
+            
+            // Verificación periódica de actualizaciones (cada hora)
+            if (r) {
+              setInterval(async () => {
+                if (!(!r.installing && navigator.onLine)) return;
+                await r.update();
+              }, 3600000);
+            }
+          },
           onNeedRefresh() {
             toast("Nueva versión disponible", {
-              duration: Infinity, // Para que no se quite hasta que el usuario decida
+              duration: Infinity,
               action: {
                 label: "Actualizar",
                 onClick: () => updateSW(true),
@@ -226,9 +149,8 @@ import { Toaster } from "sonner";
             });
           },
           onOfflineReady() {
-            toast.success("App lista para usar sin internet", {
-              description:
-                "El itinerario y la wiki se han guardado localmente.",
+            toast.success("Wiki disponible sin conexión", {
+              description: "Tu itinerario para Inglaterra se ha guardado.",
             });
           },
         });
