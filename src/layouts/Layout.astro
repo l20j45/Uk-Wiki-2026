@@ -5,16 +5,13 @@ interface Props {
 
 const { title } = Astro.props;
 
-// Componentes e Imagenes
 import BackToTop from "../components/BackToTop.astro";
 import PanicButton from "../components/PanicButton.jsx";
 import { Toaster } from "sonner";
 
-// Estilos y PWA
 import "../styles/global.css";
 import { pwaInfo } from "virtual:pwa-info";
 
-// Auth
 const hasSession = Astro.cookies.has("user_session");
 const user = Astro.locals.user;
 ---
@@ -33,11 +30,22 @@ const user = Astro.locals.user;
     />
     <title>{title}</title>
     <meta name="theme-color" content="#4f46e5" />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
-    
+
+    <!-- ✅ FIX: Agregar más tamaños para mejor compatibilidad iOS/Android -->
+    <link rel="apple-touch-icon" href="/icon512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="UK Wiki" />
+
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+
+    <!-- ✅ FIX: Script del SW en el <head> para registrarlo lo antes posible -->
+    {pwaInfo?.registerSW?.scriptTag && (
+      <Fragment set:html={pwaInfo.registerSW.scriptTag} />
+    )}
   </head>
-  
+
   <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased">
     <Toaster client:load richColors position="top-right" />
 
@@ -59,9 +67,12 @@ const user = Astro.locals.user;
                 {user.isAdmin === 1 && (
                   <a href="/admin/" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Dashboard</a>
                 )}
-                <a href="/api/logout" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors">
-                  Salir
-                </a>
+                <!-- ✅ FIX: logout como POST para evitar que se cachee como navegación GET -->
+                <form method="POST" action="/api/logout" style="display:inline">
+                  <button type="submit" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors">
+                    Salir
+                  </button>
+                </form>
               </>
             ) : (
               <a href="/login" class="px-5 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-all">
@@ -72,7 +83,7 @@ const user = Astro.locals.user;
 
           <PanicButton client:visible />
 
-          <button id="menu-toggle" class="md:hidden p-2 text-slate-600 focus:outline-none">
+          <button id="menu-toggle" class="md:hidden p-2 text-slate-600 focus:outline-none" aria-label="Abrir menú" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
@@ -86,10 +97,17 @@ const user = Astro.locals.user;
             <a href="/perfil/" class="text-base font-bold text-slate-600">Mi perfil</a>
             <a href={`/usuario/${user.username}`} class="text-base font-bold text-slate-600">Mi tarjeta</a>
             {user.isAdmin === 1 && <a href="/admin/" class="text-base font-bold text-slate-600">Dashboard</a>}
-            <a href="/api/logout" class="mx-auto w-2/3 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold">Cerrar Sesión</a>
+            <!-- ✅ FIX: logout como POST también en mobile -->
+            <form method="POST" action="/api/logout">
+              <button type="submit" class="mx-auto w-2/3 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold">
+                Cerrar Sesión
+              </button>
+            </form>
           </div>
         ) : (
-          <a href="/login" class="block mx-auto w-2/3 px-4 py-2 font-bold text-white bg-green-600 rounded-full">Inicia Sesión</a>
+          <a href="/login" class="block mx-auto w-2/3 px-4 py-2 font-bold text-white bg-green-600 rounded-full">
+            Inicia Sesión
+          </a>
         )}
       </div>
     </nav>
@@ -98,13 +116,14 @@ const user = Astro.locals.user;
       <slot />
     </main>
 
-    <a
+    
       href="/sos"
+      aria-label="Botón de emergencia SOS"
       class="fixed bottom-6 right-6 w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(225,29,72,0.5)] animate-pulse z-50"
     >
       🚨
     </a>
-    
+
     <BackToTop />
 
     <footer class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200">
@@ -116,42 +135,65 @@ const user = Astro.locals.user;
       import { registerSW } from "virtual:pwa-register";
       import { toast } from "sonner";
 
-      // 1. Lógica del Menú Móvil
+      // 1. Menú móvil con accesibilidad
       const menuToggle = document.getElementById("menu-toggle");
       const mobileMenu = document.getElementById("mobile-menu");
 
       menuToggle?.addEventListener("click", () => {
-        mobileMenu?.classList.toggle("hidden");
+        const isHidden = mobileMenu?.classList.toggle("hidden");
+        // ✅ FIX: Actualizar aria-expanded para accesibilidad
+        menuToggle.setAttribute("aria-expanded", String(!isHidden));
       });
 
-      // 2. Lógica del Service Worker
+      // ✅ FIX: Cerrar menú al hacer click fuera
+      document.addEventListener("click", (e) => {
+        if (
+          !mobileMenu?.classList.contains("hidden") &&
+          !menuToggle?.contains(e.target as Node) &&
+          !mobileMenu?.contains(e.target as Node)
+        ) {
+          mobileMenu?.classList.add("hidden");
+          menuToggle?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      // 2. Service Worker
       if ("serviceWorker" in navigator) {
         const updateSW = registerSW({
           immediate: true,
           onRegisteredSW(swUrl, r) {
-            console.log("Service Worker registrado:", swUrl);
-            
-            // Verificación periódica de actualizaciones (cada hora)
             if (r) {
+              // Verificación periódica cada hora solo si hay conexión
               setInterval(async () => {
-                if (!(!r.installing && navigator.onLine)) return;
+                if (r.installing || !navigator.onLine) return;
                 await r.update();
-              }, 3600000);
+              }, 3_600_000);
             }
           },
           onNeedRefresh() {
-            toast("Nueva versión disponible", {
+            toast("Nueva versión disponible 🚀", {
               duration: Infinity,
               action: {
                 label: "Actualizar",
                 onClick: () => updateSW(true),
               },
+              // ✅ FIX: Opción de cerrar el toast sin actualizar
+              cancel: {
+                label: "Ahora no",
+                onClick: () => {},
+              },
             });
           },
           onOfflineReady() {
-            toast.success("Wiki disponible sin conexión", {
-              description: "Tu itinerario para Inglaterra se ha guardado.",
+            toast.success("📵 Disponible sin conexión", {
+              description: "Tu guía de Inglaterra está guardada.",
+              // ✅ FIX: Duración razonable, no Infinity
+              duration: 5000,
             });
+          },
+          // ✅ FIX: Manejar errores del SW
+          onRegisterError(error) {
+            console.error("Error registrando Service Worker:", error);
           },
         });
       }
