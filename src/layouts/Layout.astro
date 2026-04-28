@@ -1,19 +1,18 @@
 ---
+import BackToTop from "../components/BackToTop.astro";
+import Header from "./header.astro";
+import Footer from "./footer.astro";
+import ButtonPanicBotton from "./buttonPanicBotton.astro";
+
+import { Toaster } from "sonner";
+import { pwaInfo } from "virtual:pwa-info";
+
+import "@styles/global.css";
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
-
-import BackToTop from "../components/BackToTop.astro";
-import PanicButton from "../components/PanicButton.jsx";
-import { Toaster } from "sonner";
-
-import "../styles/global.css";
-import { pwaInfo } from "virtual:pwa-info";
-
-const hasSession = Astro.cookies.has("user_session");
-const user = Astro.locals.user;
 ---
 
 <!doctype html>
@@ -41,95 +40,29 @@ const user = Astro.locals.user;
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
 
     <!-- ✅ FIX: Script del SW en el <head> para registrarlo lo antes posible -->
-    {pwaInfo?.registerSW?.scriptTag && (
-      <Fragment set:html={pwaInfo.registerSW.scriptTag} />
-    )}
+    {
+      pwaInfo?.registerSW?.scriptTag && (
+        <Fragment set:html={pwaInfo.registerSW.scriptTag} />
+      )
+    }
   </head>
 
-  <body class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased">
+  <body
+    class="bg-slate-50 text-slate-900 font-['Inter',sans-serif] antialiased"
+  >
     <Toaster client:load richColors position="top-right" />
 
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 py-3">
-      <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <a href="/" class="flex items-center gap-2">
-          <img src="/icon.svg" class="w-8 h-8" alt="Logo" />
-          <span class="hidden sm:inline font-extrabold tracking-tight text-xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
-            UK 2026
-          </span>
-        </a>
-
-        <div class="flex items-center gap-4">
-          <div class="hidden md:flex items-center gap-6 mr-4">
-            {hasSession && user ? (
-              <>
-                <a href="/perfil/" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Mi perfil</a>
-                <a href={`/usuario/${user.username}`} class="text-sm font-bold text-slate-600 hover:text-indigo-600">Mi tarjeta</a>
-                {user.isAdmin === 1 && (
-                  <a href="/admin/" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Dashboard</a>
-                )}
-                <!-- ✅ FIX: logout como POST para evitar que se cachee como navegación GET -->
-                <form method="POST" action="/api/logout" style="display:inline">
-                  <button type="submit" class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-bold hover:bg-rose-100 transition-colors">
-                    Salir
-                  </button>
-                </form>
-              </>
-            ) : (
-              <a href="/login" class="px-5 py-2 text-sm font-bold text-white bg-green-600 rounded-full hover:bg-green-700 transition-all">
-                Inicia Sesión
-              </a>
-            )}
-          </div>
-
-          <PanicButton client:visible />
-
-          <button id="menu-toggle" class="md:hidden p-2 text-slate-600 focus:outline-none" aria-label="Abrir menú" aria-expanded="false">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 space-y-4 border-t border-slate-100 pt-4 text-center">
-        {hasSession && user ? (
-          <div class="flex flex-col gap-4">
-            <a href="/perfil/" class="text-base font-bold text-slate-600">Mi perfil</a>
-            <a href={`/usuario/${user.username}`} class="text-base font-bold text-slate-600">Mi tarjeta</a>
-            {user.isAdmin === 1 && <a href="/admin/" class="text-base font-bold text-slate-600">Dashboard</a>}
-            <!-- ✅ FIX: logout como POST también en mobile -->
-            <form method="POST" action="/api/logout">
-              <button type="submit" class="mx-auto w-2/3 px-4 py-2 bg-rose-50 text-rose-600 rounded-xl font-bold">
-                Cerrar Sesión
-              </button>
-            </form>
-          </div>
-        ) : (
-          <a href="/login" class="block mx-auto w-2/3 px-4 py-2 font-bold text-white bg-green-600 rounded-full">
-            Inicia Sesión
-          </a>
-        )}
-      </div>
-    </nav>
+    <Header />
 
     <main>
       <slot />
     </main>
 
-    
-      href="/sos"
-      aria-label="Botón de emergencia SOS"
-      class="fixed bottom-6 right-6 w-16 h-16 bg-rose-600 rounded-full flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(225,29,72,0.5)] animate-pulse z-50"
-    >
-      🚨
-    </a>
+    <ButtonPanicBotton />
 
     <BackToTop />
 
-    <footer class="mt-20 py-10 text-center text-slate-400 text-sm border-t border-slate-200">
-      <p>Curso de Verano Aplicado a IA • University of Hertfordshire</p>
-      <p class="mt-1">© 2026 - Daniel Rojas</p>
-    </footer>
+    <Footer />
 
     <script>
       import { registerSW } from "virtual:pwa-register";

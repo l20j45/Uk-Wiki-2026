@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import {db} from '../../db/db';
-import { itinerary } from '../../db/schema';
+import {db, itinerary} from '@db/index';
+
 
 export const GET: APIRoute = async () => {
   const result = await db.select().from(itinerary);

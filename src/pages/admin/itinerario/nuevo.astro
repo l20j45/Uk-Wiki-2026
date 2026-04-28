@@ -1,7 +1,7 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import { db } from "../../../db/db";
-import { itinerary } from "../../../db/schema";
+import Layout from "@layout/Layout.astro";
+import { db, itinerary } from "@db/index";
+
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
@@ -11,6 +11,7 @@ if (Astro.request.method === "POST") {
     description: data.get("description")?.toString(),
     eventDate: data.get("eventDate")?.toString() || "",
     eventTime: data.get("eventTime")?.toString() || "",
+    finishTime: data.get("finishtime")?.toString() || "",
     location: data.get("location")?.toString(),
     icon: data.get("icon")?.toString() || "📍",
   });
@@ -34,15 +35,20 @@ if (Astro.request.method === "POST") {
             class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-sm" />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div>
             <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Fecha</label>
             <input name="eventDate" type="date" required 
               class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
           </div>
           <div>
-            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">Hora (UK Time)</label>
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">desde (UK Time)</label>
             <input name="eventTime" type="time" required 
+              class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-2">hasta (UK Time)</label>
+            <input name="finishtime" type="time" required 
               class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" />
           </div>
         </div>

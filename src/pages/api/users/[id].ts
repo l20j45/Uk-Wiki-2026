@@ -4,6 +4,12 @@ import { users } from "../../../db/schema";
 import { eq } from "drizzle-orm";
 import { v2 as cloudinary } from "cloudinary";
 
+cloudinary.config({
+  cloud_name: import.meta.env.CLOUDINARY_CLOUD_NAME,
+  api_key: import.meta.env.CLOUDINARY_API_KEY,
+  api_secret: import.meta.env.CLOUDINARY_API_SECRET,
+});
+
 export const DELETE: APIRoute = async ({ params, locals }) => {
   const { id } = params;
   const adminUser = locals.user;

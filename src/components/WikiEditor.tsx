@@ -1,20 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
-
-
+import type { articleType } from '../shared/interfaces/dataDefinitions';
 interface Props {
-  initialData?: {
-    title?: string;
-    content?: string;
-    category?: string;
-    description?: string;
-    importance?: number;
-    isUrgent?: number;
-    image?: string;
-  };
+  initialData: articleType;
 }
 
-export default function WikiEditor({ initialData = {} }: Props) {
+export default function WikiEditor({ initialData}: Props) {
   const [value, setValue] = useState<string | undefined>(initialData.content || "");
   const [title, setTitle] = useState(initialData.title || "");
   const [category, setCategory] = useState(initialData.category || "General");
@@ -60,7 +51,7 @@ export default function WikiEditor({ initialData = {} }: Props) {
           <input 
             type="text" 
             name="description"
-            defaultValue={initialData.description}
+            defaultValue={initialData.description || ""}
             placeholder="Resumen para la tarjeta..."
             className="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-bold"
           />
@@ -70,7 +61,7 @@ export default function WikiEditor({ initialData = {} }: Props) {
           <input 
             type="text" 
             name="image"
-            defaultValue={initialData.image}
+            defaultValue={initialData.image || ""}
             placeholder="https://res.cloudinary.com/..."
             className="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-bold"
           />

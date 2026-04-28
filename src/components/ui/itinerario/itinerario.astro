@@ -1,0 +1,8 @@
+---
+import { getAllItinerary } from "@lib/getAllItinerary";
+import { TodayScheduleCard } from "./TodayScheduleCard";
+
+const scheduleArray = await getAllItinerary();
+
+---
+<TodayScheduleCard client:only scheduleArray={scheduleArray} />

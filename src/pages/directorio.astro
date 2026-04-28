@@ -1,0 +1,16 @@
+---
+import Layout from "@layout/Layout.astro";
+import ParticipantsDirectory from "@components/ui/directorio/ParticipantsDirectory";
+import { getAllUsers } from "@lib/getAllUsers";
+
+const participants = await getAllUsers();
+---
+
+<Layout title="Directorio de Participantes">
+  <main class="max-w-2xl mx-auto px-6 pb-24 b">
+    <h1 class="text-3xl font-black text-slate-800 mt-10 mb-2">Directorio de Participantes</h1>
+    <p class="text-slate-500 text-sm mb-6">Consulta la lista completa de participantes del programa UK 2026.</p>
+
+    <ParticipantsDirectory client:load participants={participants} />
+  </main>
+</Layout>

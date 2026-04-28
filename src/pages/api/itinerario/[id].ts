@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
-import { db } from "../../../db/db";
-import { itinerary } from "../../../db/schema";
+import { db, itinerary } from "@db/index";
+
 import { eq } from "drizzle-orm";
 
 export const DELETE: APIRoute = async ({ params, locals }) => {

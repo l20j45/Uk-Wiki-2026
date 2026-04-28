@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import {db} from '../../db/db';
-import { articles } from '../../db/schema';
+import {db,articles} from '@db/index';
 
 export const GET: APIRoute = async () => {
   const result = await db.select().from(articles).orderBy(articles.importance);

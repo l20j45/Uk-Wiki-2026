@@ -1,10 +1,9 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { db } from "../../db/db";
-import { users } from "../../db/schema";
+import Layout from "@layout/Layout.astro";
+import { db,users } from "@db/index";
+
 import { eq } from "drizzle-orm";
-import QRCode from "../../components/QRCode.astro";
-import ChangePasswordModal from "../../components/ChangePasswordModal";
+import QRCode from "@components/QRCode.astro";
 
 
 const user = Astro.locals.user;

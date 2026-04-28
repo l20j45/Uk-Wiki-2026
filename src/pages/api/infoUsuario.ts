@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import {db} from '../../db/db';
+import {db} from '@db/index';
 
 export const GET: APIRoute = async ({ cookies }) => {
   const sessionId = cookies.get("user_session")?.value;

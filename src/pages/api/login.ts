@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
-import { db } from "../../db/db";
-import { users } from "../../db/schema";
+import { db,users } from "@db/index";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 

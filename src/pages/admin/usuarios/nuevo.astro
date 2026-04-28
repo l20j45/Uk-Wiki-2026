@@ -1,7 +1,7 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import { db } from "../../../db/db";
-import { users } from "../../../db/schema";
+import Layout from "@layout/Layout.astro";
+import { db,users } from "@db/index";
+
 import bcrypt from "bcrypt";
 
 let errorMessage = "";
@@ -68,6 +68,7 @@ if (Astro.request.method === "POST") {
           <input 
             type="text" 
             name="username" 
+            id="username"
             placeholder="ej: drojas"
             required
             class="w-full p-4 bg-slate-50 rounded-2xl border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"

@@ -1,42 +1,26 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import { db } from "../../db/db";
-import { users, itinerary, articles } from "../../db/schema";
-import { desc, asc } from "drizzle-orm";
-import EventAdminTable from "../../components/EventAdminTable";
-import UserAdminTable from "../../components/UserAdminTable";
-import ArticlesAdminTable from "../../components/ArticlesAdminTable";
-import BackToTop from "../../components/BackToTop.astro";
+import Layout from "@layout/Layout.astro";
 
-const totalEvents = await db
-  .select()
-  .from(itinerary)
-  .orderBy(asc(itinerary.eventDate));
+import EventAdminTable from "@components/EventAdminTable";
+import UserAdminTable from "@components/UserAdminTable";
+import ArticlesAdminTable from "@components/ArticlesAdminTable";
 
-const totalArticles = await db
-  .select()
-  .from(articles)
-  .orderBy(asc(articles.id));
+import { getAllItinerary, getAllArticles, getAllUsers } from "@lib/index";
 
-const recentUsers = await db.query.users.findMany({
-  orderBy: [desc(users.id)],
-});
-const tableUser = recentUsers.map((u) => ({
-  id: u.id,
-  username: u.username,
-  fullName: u.fullName,
-  role: u.role,
-  qrUrl: u.qrUrl ?? "pendiente",
-  image: u.avatarUrl,
+const totalEvents = await getAllItinerary();
+const totalArticles = await getAllArticles();
+const recentUsers = await getAllUsers();
+
+const tableUser = recentUsers.map(({ id, username, fullName, role, qrUrl, avatarUrl }) => ({
+  id,
+  username,
+  fullName,
+  role,
+  qrUrl: qrUrl ?? "pendiente",
+  image: avatarUrl,
 }));
 
-const tableArticles = totalArticles.map((a) => ({
-  id: a.id,
-  title: a.title,
-  description: a.description,
-  category: a.category,
-  urgency: a.isUrgent,
-}));
+
 
 ---
 
@@ -50,13 +34,6 @@ const tableArticles = totalArticles.map((a) => ({
         <p class="text-slate-500 mt-2 font-medium">
           Gestiona alumnos, QRs y cronograma del viaje.
         </p>
-      </div>
-      <div class="text-right">
-        <span
-          class="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full"
-        >
-          Estás en modo Dios ✨
-        </span>
       </div>
     </header>
 

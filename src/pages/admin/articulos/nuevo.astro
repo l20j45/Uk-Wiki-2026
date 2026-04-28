@@ -1,20 +1,20 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import WikiEditor from "../../../components/WikiEditor";
-import { db } from "../../../db/db";
-import { articles } from "../../../db/schema";
+import Layout from "@layout/Layout.astro";
+import WikiEditor from "@components/WikiEditor";
+import { insertArticle } from "@lib/index";
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   const title = data.get("title")?.toString() || "";
-  
-  // Generar slug automático
-  const slug = title.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar acentos
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '');
 
-  await db.insert(articles).values({
+  const slug = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+    
+  const values = {
     title,
     slug,
     description: data.get("description")?.toString(),
@@ -23,8 +23,10 @@ if (Astro.request.method === "POST") {
     importance: parseInt(data.get("importance")?.toString() || "1"),
     isUrgent: parseInt(data.get("isUrgent")?.toString() || "0"),
     image: data.get("image")?.toString(),
-    pubDate: new Date().toLocaleDateString('es-MX'), // O la fecha de Londres
-  });
+    pubDate: new Date().toLocaleDateString("es-MX"),
+  };
+
+  await insertArticle(values);
 
   return Astro.redirect("/admin/");
 }
@@ -33,8 +35,14 @@ if (Astro.request.method === "POST") {
 <Layout title="Nueva Wiki | Admin">
   <main class="max-w-5xl mx-auto px-6 py-12">
     <header class="mb-10">
-      <a href="/admin" class="text-[10px] font-black uppercase text-indigo-600 tracking-widest mb-4 block">← Panel</a>
-      <h1 class="text-3xl font-black text-slate-900 leading-tight">Redactar Guía de Viaje</h1>
+      <a
+        href="/admin"
+        class="text-[10px] font-black uppercase text-indigo-600 tracking-widest mb-4 block"
+        >← Panel</a
+      >
+      <h1 class="text-3xl font-black text-slate-900 leading-tight">
+        Redactar Guía de Viaje
+      </h1>
     </header>
 
     <form method="POST">

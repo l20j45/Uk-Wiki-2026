@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface Event {
   id: number;
@@ -6,6 +6,7 @@ interface Event {
   description: string | null;
   eventDate: string | null;
   eventTime: string | null;
+  finishTime: string | null;
   location: string | null;
   icon: string | null;
 }
@@ -91,17 +92,18 @@ export default function EventAdminTable({ initialEvents=[] }: Props) {
                       <div>
                         <p className="text-sm font-bold text-slate-800">{event.title}</p>
                         <p className="text-[10px] text-slate-400 font-medium line-clamp-1 max-w-[200px]">
-                          {event.description}
+                           {event.description}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="p-6 hidden md:table-cell">
                     <div className="flex flex-col">
-                      <span className="text-xs font-black text-indigo-600">{event.eventDate}</span>
+                      <span className="text-xs font-black text-indigo-600">Fecha: {event.eventDate}</span>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                        {event.eventTime} hrs
+                        {event.eventTime} hrs | {event.finishTime} hrs
                       </span>
+  
                     </div>
                   </td>
                   <td className="p-6 hidden md:table-cell">
