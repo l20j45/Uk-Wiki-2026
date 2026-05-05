@@ -30,11 +30,14 @@
     "cloudinary": "^2.9.0",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.38.0",
+    "glightbox": "^3.3.1",
     "lucide-react": "^1.7.0",
     "marked": "^17.0.5",
     "mysql2": "^3.20.0",
+    "photoswipe": "^5.4.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-masonry-css": "^1.0.16",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.2.2",
     "workbox-window": "^7.4.0"
@@ -42,6 +45,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.1",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0"
